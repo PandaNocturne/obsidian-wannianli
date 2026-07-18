@@ -1,0 +1,463 @@
+/* 去掉 Obsidian 视图默认内边距，左右仅保留 .wnl-root 的 20px */
+.workspace-leaf-content[data-type='wannianli-view'] .view-content {
+  padding: 0 !important;
+}
+.wnl-root {
+  padding: 16px 20px 24px;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at top, rgba(0, 80, 140, 0.06), transparent 55%), var(--background-primary);
+}
+.wnl-clock-host {
+  margin-bottom: 8px;
+}
+.wnl-clock {
+  text-align: center;
+}
+.wnl-clock__date {
+  color: #ff6633;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.wnl-clock__time {
+  color: var(--text-muted);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+.wnl-toolbar-host {
+  margin-bottom: 12px;
+}
+.wnl-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+  padding: 10px 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+}
+.wnl-toolbar__nav,
+.wnl-toolbar__selectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.wnl-btn {
+  appearance: none;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.wnl-btn:hover {
+  background: var(--background-modifier-hover);
+}
+.wnl-btn.is-active {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+.wnl-btn--accent {
+  border-color: var(--interactive-accent);
+  color: var(--interactive-accent);
+}
+.wnl-select {
+  min-width: 72px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+.wnl-board-host {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.wnl-board--year {
+  display: grid;
+  width: 100%;
+  box-sizing: border-box;
+  /* 拉满宽度；列间距固定 10px（不再 space-between） */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+@media (max-width: 1100px) {
+  .wnl-board--year {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 800px) {
+  .wnl-board--year {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .wnl-board--year {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.wnl-month {
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.wnl-month__header {
+  background: #000080;
+  color: #fff;
+  padding: 10px 12px;
+  text-align: center;
+}
+.wnl-month__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.wnl-month__gz {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  opacity: 0.92;
+}
+.wnl-month--compact .wnl-month__header {
+  padding: 8px 10px;
+}
+.wnl-month--compact .wnl-month__title {
+  font-size: 1.05rem;
+}
+.wnl-month--compact .wnl-grid th {
+  padding: 7px 2px;
+  font-size: 0.85rem;
+}
+.wnl-month--compact .wnl-day {
+  padding: 5px 2px;
+  min-height: 48px;
+}
+.wnl-month--compact .wnl-day__solar {
+  font-size: 1.15rem;
+}
+.wnl-month--compact .wnl-day__lunar {
+  font-size: 0.72rem;
+}
+.wnl-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.wnl-grid th {
+  background: var(--background-modifier-border);
+  padding: 6px 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+.wnl-day {
+  vertical-align: top;
+  text-align: center;
+  padding: 4px 2px;
+  min-height: 52px;
+  border: 1px solid var(--background-modifier-border);
+  cursor: default;
+  transition: background 0.12s ease;
+}
+.wnl-day:not(.wnl-day--empty):hover {
+  background: var(--background-modifier-hover);
+}
+.wnl-day--empty {
+  background: transparent;
+  border-color: transparent;
+}
+.wnl-day--today {
+  background: rgba(0, 200, 200, 0.35) !important;
+}
+.wnl-day--festival .wnl-day__lunar {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+.wnl-day--clickable {
+  cursor: pointer;
+}
+.wnl-day__solar {
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--text-normal);
+}
+.wnl-day__lunar {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: var(--text-muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wnl-weekend-sat .wnl-day__solar,
+.wnl-weekend-sat {
+  color: #2a9d4a;
+}
+.wnl-weekend-sun .wnl-day__solar,
+.wnl-weekend-sun {
+  color: #d63031;
+}
+th.wnl-weekend-sat {
+  color: #2a9d4a;
+}
+th.wnl-weekend-sun {
+  color: #d63031;
+}
+.wnl-tooltip {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  max-width: 200px;
+  padding: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+.wnl-tooltip__body {
+  background: #000066;
+  color: #fff;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.wnl-tooltip__lunar {
+  color: #ee82ee;
+  margin-top: 2px;
+}
+.wnl-tooltip__ganzhi {
+  color: #ffd700;
+  margin-top: 2px;
+}
+.wnl-tooltip__festival {
+  margin-top: 6px;
+  padding: 4px 6px;
+  background: #ccffcc;
+  color: #000;
+  border-radius: 2px;
+  font-size: 0.75rem;
+}
+.wnl-event-modal__summary {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.wnl-event-modal__heading {
+  margin: 14px 0 8px;
+  font-size: 0.95rem;
+}
+.wnl-event-modal__empty {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+}
+.wnl-event-modal__row .setting-item {
+  border-top: none;
+  padding: 8px 0;
+}
+/* 遮罩层内水平 + 垂直居中 */
+.wnl-day-detail-container {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.wnl-day-detail-modal {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  width: auto;
+  max-width: min(420px, 92vw);
+}
+.wnl-day-detail-modal .modal-header {
+  display: none;
+}
+.wnl-day-detail-modal .modal-content {
+  padding: 0;
+  max-height: min(90vh, 720px);
+  overflow: auto;
+}
+.wnl-day-detail-modal .modal-close-button {
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+.wnl-day-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 24px 20px;
+  min-width: min(360px, 92vw);
+  max-width: 420px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+.wnl-day-detail__header {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+.wnl-day-detail__today {
+  margin-top: 6px;
+  color: #e74c3c;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.wnl-day-detail__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin: 18px 0 8px;
+}
+.wnl-day-detail__arrow {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #e74c3c;
+  font-size: 2.4rem;
+  line-height: 1;
+  padding: 0 6px;
+  cursor: pointer;
+  font-weight: 300;
+}
+.wnl-day-detail__arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.wnl-day-detail__arrow:not(:disabled):hover {
+  opacity: 0.75;
+}
+.wnl-day-detail__daynum {
+  font-size: 4.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #e74c3c;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.4em;
+}
+.wnl-day-detail__lunar {
+  margin-top: 6px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+.wnl-day-detail__ganzhi {
+  margin-top: 12px;
+  padding: 6px 18px;
+  border: 1px solid rgba(231, 76, 60, 0.45);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.wnl-day-detail__meta {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.wnl-day-detail__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.wnl-day-detail__pill--huang {
+  color: #2a9d4a;
+  font-weight: 600;
+}
+.wnl-day-detail__pill--hei {
+  color: #c0392b;
+  font-weight: 600;
+}
+.wnl-day-detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.wnl-day-detail__tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(231, 76, 60, 0.1);
+  color: #c0392b;
+  font-size: 0.78rem;
+}
+.wnl-day-detail__yiji {
+  margin-top: 18px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  text-align: left;
+  box-sizing: border-box;
+}
+.wnl-day-detail__yiji-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.wnl-day-detail__yiji-row + .wnl-day-detail__yiji-row {
+  margin-top: 12px;
+}
+.wnl-day-detail__badge {
+  flex: 0 0 auto;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.wnl-day-detail__badge--yi {
+  background: #2a9d4a;
+}
+.wnl-day-detail__badge--ji {
+  background: #e74c3c;
+}
+.wnl-day-detail__yiji-text {
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-normal);
+}
+.wnl-day-detail__actions {
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

@@ -1,0 +1,35 @@
+# vscode
+.vscode 
+.history 
+.github  
+.specstory
+_template_tmp
+
+# Intellij
+*.iml
+.idea
+.tmp
+tmp
+
+# npm
+node_modules
+
+# Don't include the compiled main.js file in the repo.
+# They should be uploaded to GitHub releases instead.
+main.js
+# Wrong output path if esbuild used array entry `src/main.ts` with outdir `.`
+src/main.js
+
+# Exclude sourcemaps
+*.map
+
+# obsidian
+data.json
+# legacy plugin state filenames (migrated on load to `{id}-*.json`)
+note-list.json
+workspaces.json
+*-note-list.json
+*-workspaces.json
+
+# Exclude macOS Finder (System Explorer) View States
+.DS_Store

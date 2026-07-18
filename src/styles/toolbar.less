@@ -1,0 +1,55 @@
+﻿.wnl-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 10px 14px;
+	padding: 10px 12px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: @wnl-radius;
+
+	&__nav,
+	&__selectors {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 6px;
+	}
+}
+
+.wnl-btn {
+	appearance: none;
+	border: 1px solid var(--background-modifier-border);
+	background: var(--background-primary);
+	color: var(--text-normal);
+	border-radius: 4px;
+	padding: 4px 10px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+
+	&:hover {
+		background: var(--background-modifier-hover);
+	}
+
+	&.is-active {
+		background: @wnl-accent;
+		border-color: @wnl-accent;
+		color: var(--text-on-accent);
+	}
+
+	&--accent {
+		border-color: @wnl-accent;
+		color: @wnl-accent;
+	}
+}
+
+.wnl-select {
+	min-width: 72px;
+	padding: 3px 6px;
+	border-radius: 4px;
+	border: 1px solid var(--background-modifier-border);
+	background: var(--background-primary);
+	color: var(--text-normal);
+}

@@ -1,0 +1,175 @@
+﻿.wnl-board-host {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.wnl-board {
+	&--year {
+		display: grid;
+		width: 100%;
+		box-sizing: border-box;
+		/* 拉满宽度；列间距固定 10px（不再 space-between） */
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 10px;
+		align-items: stretch;
+
+		@media (max-width: 1100px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		@media (max-width: 800px) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		@media (max-width: 480px) {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+}
+
+.wnl-month {
+	min-width: 0;
+	width: 100%;
+	max-width: none;
+	justify-self: stretch;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: @wnl-radius;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+	&__header {
+		background: #000080;
+		color: #fff;
+		padding: 10px 12px;
+		text-align: center;
+	}
+
+	&__title {
+		font-size: 1.1rem;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+	}
+
+	&__gz {
+		margin-top: 4px;
+		font-size: 0.85rem;
+		opacity: 0.92;
+	}
+
+	&--compact {
+		.wnl-month__header {
+			padding: 8px 10px;
+		}
+
+		.wnl-month__title {
+			font-size: 1.05rem;
+		}
+
+		.wnl-grid th {
+			padding: 7px 2px;
+			font-size: 0.85rem;
+		}
+
+		.wnl-day {
+			padding: 5px 2px;
+			min-height: 48px;
+		}
+
+		.wnl-day__solar {
+			font-size: 1.15rem;
+		}
+
+		.wnl-day__lunar {
+			font-size: 0.72rem;
+		}
+	}
+}
+
+.wnl-grid {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+
+	th {
+		background: @wnl-header-bg;
+		padding: 6px 2px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-align: center;
+	}
+}
+
+.wnl-day {
+	vertical-align: top;
+	text-align: center;
+	padding: 4px 2px;
+	min-height: 52px;
+	border: 1px solid var(--background-modifier-border);
+	cursor: default;
+	transition: background 0.12s ease;
+
+	&:not(.wnl-day--empty):hover {
+		background: @wnl-cell-hover;
+	}
+
+	&--empty {
+		background: transparent;
+		border-color: transparent;
+	}
+
+	&--today {
+		background: @wnl-today-bg !important;
+	}
+
+	&--festival .wnl-day__lunar {
+		color: @wnl-festival;
+		font-weight: 600;
+	}
+
+	&--clickable {
+		cursor: pointer;
+	}
+
+	&__solar {
+		font-family: "Arial Black", Arial, sans-serif;
+		font-size: 1.15rem;
+		line-height: 1.2;
+		color: var(--text-normal);
+	}
+
+	&__lunar {
+		font-size: 0.72rem;
+		line-height: 1.25;
+		color: var(--text-muted);
+		margin-top: 2px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+.wnl-weekend-sat {
+	.wnl-day__solar,
+	& {
+		color: @wnl-sat;
+	}
+}
+
+.wnl-weekend-sun {
+	.wnl-day__solar,
+	& {
+		color: @wnl-sun;
+	}
+}
+
+th.wnl-weekend-sat {
+	color: @wnl-sat;
+}
+
+th.wnl-weekend-sun {
+	color: @wnl-sun;
+}
