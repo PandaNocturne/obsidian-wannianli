@@ -11,7 +11,16 @@
 		"lint": "eslint ."
 	},
 	"keywords": ["obsidian", "calendar", "lunar", "万年历"],
-	"license": "0-BSD",
+	"author": "PandaNotes",
+	"license": "0BSD",
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/PandaNocturne/obsidian-wannianli.git"
+	},
+	"bugs": {
+		"url": "https://github.com/PandaNocturne/obsidian-wannianli/issues"
+	},
+	"homepage": "https://github.com/PandaNocturne/obsidian-wannianli#readme",
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",
 		"@types/node": "^22.15.17",

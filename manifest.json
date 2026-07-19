@@ -3,8 +3,8 @@
 	"name": "万年历",
 	"version": "1.0.0",
 	"minAppVersion": "1.13.0",
-	"description": "新标签页显示年视图万年历（4×3 自适应网格），含农历、节气与节日。",
+	"description": "新标签页显示中国万年历：阳历/阴历年视图、节气、生肖与黄道吉日。",
 	"author": "PandaNotes",
-	"authorUrl": "",
+	"authorUrl": "https://github.com/PandaNocturne/obsidian-wannianli",
 	"isDesktopOnly": false
 }
