@@ -189,73 +189,27 @@
 .wnl-board--zodiac {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 10px;
 }
 
-.wnl-zodiac-hint {
-	text-align: center;
-	font-size: 0.85rem;
-	color: var(--text-muted);
-	letter-spacing: 0.02em;
+.wnl-zodiac-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 4px 2px;
 }
 
-.wnl-zodiac-grid {
-	display: grid;
-	grid-template-columns: repeat(6, minmax(0, 1fr));
-	grid-template-rows: repeat(2, auto);
-	gap: var(--wnl-board-gap, 12px);
-	align-items: stretch;
-}
-
-.wnl-zodiac-card {
-	min-width: 0;
-	border: 1px solid var(--background-modifier-border);
-	border-top: 3px solid var(--wnl-month-color, #000080);
-	border-radius: @wnl-radius;
-	background: var(--wnl-month-soft, var(--background-secondary));
-	overflow: clip;
-
-	&__head {
-		display: flex;
-		align-items: baseline;
-		justify-content: center;
-		gap: 8px;
-		padding: 10px 12px;
-		color: #fff;
-		background: var(--wnl-month-color, #000080);
-	}
-
-	&__animal {
-		font-size: 1.2rem;
-		font-weight: 800;
-		letter-spacing: 0.12em;
-	}
-
-	&__meta {
-		font-size: 0.75rem;
-		opacity: 0.88;
-	}
-
-	&__years {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px;
-		padding: 10px;
-		justify-content: center;
-	}
-}
-
-.wnl-zodiac-year {
+.wnl-zodiac-filter {
 	appearance: none;
-	min-width: 3.4em;
-	padding: 4px 6px;
+	padding: 5px 12px;
+	border-radius: 999px;
 	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
 	background: var(--background-primary);
-	color: var(--text-normal);
-	font-size: 0.8rem;
+	color: var(--text-muted);
+	font-size: 0.82rem;
 	font-weight: 600;
-	font-variant-numeric: tabular-nums;
 	cursor: pointer;
 	transition:
 		background 0.12s ease,
@@ -263,23 +217,153 @@
 		color 0.12s ease;
 
 	&:hover {
-		border-color: color-mix(in srgb, var(--wnl-month-color, @wnl-accent) 50%, transparent);
-		color: var(--wnl-month-color, @wnl-accent);
+		color: var(--text-normal);
+		border-color: color-mix(in srgb, @wnl-accent 40%, var(--background-modifier-border));
 	}
 
-	&.is-today {
-		background: color-mix(
-			in srgb,
-			var(--wnl-month-color, @wnl-accent) 16%,
-			var(--background-primary)
-		);
-		border-color: color-mix(in srgb, var(--wnl-month-color, @wnl-accent) 55%, transparent);
-		color: var(--wnl-month-color, @wnl-accent);
+	&.is-active {
+		color: var(--text-on-accent);
+		background: @wnl-accent;
+		border-color: @wnl-accent;
+	}
+}
+
+.wnl-zodiac-hint {
+	text-align: center;
+	font-size: 0.82rem;
+	color: var(--text-muted);
+	letter-spacing: 0.02em;
+}
+
+.wnl-zodiac-table-wrap {
+	overflow: auto;
+	max-height: min(70vh, 820px);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 12px;
+	background: var(--background-primary);
+}
+
+.wnl-zodiac-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9rem;
+
+	th,
+	td {
+		padding: 10px 12px;
+		text-align: center;
+		border-bottom: 1px solid var(--background-modifier-border);
+		vertical-align: middle;
+	}
+
+	th {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: var(--text-muted);
+		background: var(--background-secondary);
+		letter-spacing: 0.04em;
+	}
+
+	&__year {
 		font-weight: 750;
+		font-variant-numeric: tabular-nums;
+		color: var(--text-normal);
 	}
 
-	&.is-focus:not(.is-today) {
-		outline: 2px solid color-mix(in srgb, var(--interactive-accent) 45%, transparent);
-		outline-offset: 1px;
+	&__label {
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--text-normal);
+		white-space: nowrap;
+	}
+
+	&__cny {
+		font-variant-numeric: tabular-nums;
+		color: var(--text-muted);
+		white-space: nowrap;
+	}
+
+	&__row.is-clickable {
+		cursor: pointer;
+
+		&:hover td {
+			background: var(--background-modifier-hover);
+		}
+	}
+
+	&__row.is-today td {
+		background: color-mix(in srgb, @wnl-accent 10%, var(--background-primary));
+	}
+
+	&__row.is-focus:not(.is-today) td {
+		background: color-mix(in srgb, @wnl-accent 5%, var(--background-primary));
+	}
+
+	&__row.is-today .wnl-zodiac-table__year,
+	&__row.is-today .wnl-zodiac-table__label {
+		color: @wnl-accent;
+	}
+}
+
+.wnl-zodiac-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2em;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 700;
+	border: 1px solid transparent;
+
+	&--animal {
+		color: var(--text-normal);
+		background: var(--background-secondary);
+		border-color: var(--background-modifier-border);
+	}
+
+	&--wx-木 {
+		color: #047857;
+		background: color-mix(in srgb, #10b981 14%, var(--background-primary));
+		border-color: color-mix(in srgb, #10b981 30%, transparent);
+	}
+
+	&--wx-火 {
+		color: #c2410c;
+		background: color-mix(in srgb, #f97316 14%, var(--background-primary));
+		border-color: color-mix(in srgb, #f97316 30%, transparent);
+	}
+
+	&--wx-土 {
+		color: #a16207;
+		background: color-mix(in srgb, #eab308 16%, var(--background-primary));
+		border-color: color-mix(in srgb, #eab308 32%, transparent);
+	}
+
+	&--wx-金 {
+		color: #64748b;
+		background: color-mix(in srgb, #94a3b8 16%, var(--background-primary));
+		border-color: color-mix(in srgb, #94a3b8 32%, transparent);
+	}
+
+	&--wx-水 {
+		color: #1d4ed8;
+		background: color-mix(in srgb, #3b82f6 14%, var(--background-primary));
+		border-color: color-mix(in srgb, #3b82f6 30%, transparent);
+	}
+
+	&--yy-阳 {
+		color: #b45309;
+		background: color-mix(in srgb, #f59e0b 14%, var(--background-primary));
+		border-color: color-mix(in srgb, #f59e0b 28%, transparent);
+	}
+
+	&--yy-阴 {
+		color: #6d28d9;
+		background: color-mix(in srgb, #8b5cf6 12%, var(--background-primary));
+		border-color: color-mix(in srgb, #8b5cf6 28%, transparent);
 	}
 }

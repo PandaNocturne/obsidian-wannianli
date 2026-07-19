@@ -3,7 +3,7 @@ import { Animals, solarTerm } from '../data/terms';
 import { calendar } from './calendar';
 import { calcAlmanac } from './day-detail';
 import { cDay, lunarMonthToChinese } from './format';
-import { cyclical, sTermDate } from './lunar-calc';
+import { cyclical, lunarToSolar, sTermDate } from './lunar-calc';
 
 export interface SolarTermItem {
 	index: number;
@@ -144,6 +144,59 @@ export function zodiacOfYear(year: number): string {
 /** 公历年干支 */
 export function ganzhiOfYear(year: number): string {
 	return cyclical(year - 4);
+}
+
+/** 天干五行：甲乙木、丙丁火、戊己土、庚辛金、壬癸水 */
+const STEM_WUXING = ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水'] as const;
+
+export type WuXing = (typeof STEM_WUXING)[number];
+export type YinYang = '阴' | '阳';
+
+export interface ZodiacYearRow {
+	year: number;
+	/** 如 丙午 */
+	ganzhi: string;
+	/** 如 马 */
+	animal: string;
+	/** 如 丙午马年 */
+	label: string;
+	/** 农历新年公历日期 */
+	lunarNewYear: Date;
+	lunarNewYearText: string;
+	wuxing: WuXing;
+	yinYang: YinYang;
+}
+
+function stemIndexOfYear(year: number): number {
+	return ((year - 4) % 10 + 10) % 10;
+}
+
+/** 1900–2099 生肖年表行（按公历年） */
+export function listZodiacYearRows(
+	fromYear = YEAR_MIN,
+	toYear = YEAR_MAX,
+): ZodiacYearRow[] {
+	const start = Math.max(YEAR_MIN, fromYear);
+	const end = Math.min(YEAR_MAX, toYear);
+	const rows: ZodiacYearRow[] = [];
+
+	for (let y = start; y <= end; y++) {
+		const ganzhi = ganzhiOfYear(y);
+		const animal = zodiacOfYear(y);
+		const stem = stemIndexOfYear(y);
+		const lunarNewYear = lunarToSolar(y, 1, 1, false);
+		rows.push({
+			year: y,
+			ganzhi,
+			animal,
+			label: `${ganzhi}${animal}年`,
+			lunarNewYear,
+			lunarNewYearText: `${lunarNewYear.getFullYear()}年${lunarNewYear.getMonth() + 1}月${lunarNewYear.getDate()}日`,
+			wuxing: STEM_WUXING[stem]!,
+			yinYang: stem % 2 === 0 ? '阳' : '阴',
+		});
+	}
+	return rows;
 }
 
 export interface ZodiacGroup {

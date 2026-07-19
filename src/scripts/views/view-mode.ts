@@ -45,8 +45,6 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 	if (mode === 'zodiac') {
 		renderZodiacView(container, {
 			focusYear: options.year,
-			colorfulTheme: display.colorfulTheme,
-			showMonthShadow: display.showMonthShadow,
 			onYearClick: options.onZodiacYearClick,
 		});
 		return;
