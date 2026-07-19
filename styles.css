@@ -1267,6 +1267,25 @@ th.wnl-weekend-sun {
   font-weight: 650;
   letter-spacing: 0.04em;
 }
+.wnl-day-detail__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+.wnl-day-detail__status--off {
+  color: #d63031;
+  background: rgba(214, 48, 49, 0.12);
+  border: 1px solid color-mix(in srgb, #d63031 28%, transparent);
+}
+.wnl-day-detail__status--work {
+  color: #2a9d4a;
+  background: rgba(42, 157, 74, 0.12);
+  border: 1px solid color-mix(in srgb, #2a9d4a 28%, transparent);
+}
 .wnl-day-detail__nav {
   display: flex;
   align-items: center;

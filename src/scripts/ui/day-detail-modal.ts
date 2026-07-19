@@ -1,6 +1,7 @@
 import { Modal, setIcon } from 'obsidian';
 import type WannianliPlugin from '../../main';
 import { YEAR_MAX, YEAR_MIN } from '../constants';
+import { getDayHolidayInfo } from '../data/holiday-sync';
 import { buildDayDetail, shiftSolarDate, type DayDetailModel } from '../lunar/day-detail';
 import { DayEventModal } from './event-modal';
 
@@ -63,6 +64,17 @@ export class DayDetailModal extends Modal {
 		});
 		if (model.isToday) {
 			top.createSpan({ cls: 'wnl-day-detail__today', text: '今天' });
+		}
+		const holiday = getDayHolidayInfo(this.y, this.m, this.d);
+		if (holiday) {
+			top.createSpan({
+				cls: holiday.isOffDay
+					? 'wnl-day-detail__status wnl-day-detail__status--off'
+					: 'wnl-day-detail__status wnl-day-detail__status--work',
+				text: holiday.isOffDay
+					? `${holiday.name}·放假`
+					: `${holiday.name}·补班`,
+			});
 		}
 
 		const nav = hero.createDiv({ cls: 'wnl-day-detail__nav' });
