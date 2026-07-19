@@ -406,6 +406,7 @@
   color: transparent;
 }
 .wnl-day {
+  position: relative;
   vertical-align: top;
   text-align: center;
   padding: 4px 2px;
@@ -424,6 +425,12 @@
 .wnl-day--empty {
   background: transparent;
 }
+.wnl-day--holiday:not(.wnl-day--today) {
+  background: rgba(214, 48, 49, 0.12);
+}
+.wnl-day--workday:not(.wnl-day--today) {
+  background: rgba(42, 157, 74, 0.12);
+}
 .wnl-day--today {
   background: rgba(0, 200, 200, 0.35) !important;
 }
@@ -433,6 +440,21 @@
 }
 .wnl-day--clickable {
   cursor: pointer;
+}
+.wnl-day__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.62rem;
+  line-height: 1;
+  font-weight: 700;
+  pointer-events: none;
+}
+.wnl-day--holiday .wnl-day__badge {
+  color: #d63031;
+}
+.wnl-day--workday .wnl-day__badge {
+  color: #2a9d4a;
 }
 .wnl-day__solar {
   font-family: "Arial Black", Arial, sans-serif;

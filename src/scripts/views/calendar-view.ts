@@ -52,6 +52,11 @@ export class WannianliView extends ItemView {
 		destroyTooltip();
 	}
 
+	/** 供插件同步节假日后刷新已打开视图 */
+	refreshCalendar(): void {
+		this.refresh();
+	}
+
 	private refresh(): void {
 		renderToolbar(this.toolbarEl, this.state, {
 			onChange: (next) => {

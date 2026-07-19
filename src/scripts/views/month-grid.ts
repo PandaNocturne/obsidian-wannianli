@@ -1,5 +1,6 @@
 import type { CalendarMode } from '../ui/toolbar';
 import { WEEKDAY_HEADERS } from '../constants';
+import { getDayHolidayInfo } from '../data/holiday-sync';
 import type { CalElement, DayCell, MonthData } from '../lunar';
 import { cDay, getIsoWeek, lunarMonthToChinese } from '../lunar';
 import { attachTooltipHandlers } from '../ui/tooltip';
@@ -137,6 +138,19 @@ function fillDayTd(
 	if (cell.info.lunarFestival || cell.info.solarTerms || cell.info.solarFestival) {
 		td.addClass('wnl-day--festival');
 	}
+
+	const holiday = getDayHolidayInfo(
+		cell.info.sYear,
+		cell.info.sMonth,
+		cell.info.sDay,
+	);
+	if (holiday) {
+		td.addClass(holiday.isOffDay ? 'wnl-day--holiday' : 'wnl-day--workday');
+		td.title = holiday.isOffDay
+			? `${holiday.name}（放假）`
+			: `${holiday.name}（补班）`;
+	}
+
 	if (onDayClick) {
 		td.addClass('wnl-day--clickable');
 		td.addEventListener('click', () => onDayClick(cell.info));
@@ -152,6 +166,13 @@ function fillDayTd(
 		cls: 'wnl-day__lunar',
 		text: secondary,
 	});
+
+	if (holiday) {
+		td.createEl('span', {
+			cls: 'wnl-day__badge',
+			text: holiday.isOffDay ? '休' : '班',
+		});
+	}
 }
 
 function dayCellTexts(

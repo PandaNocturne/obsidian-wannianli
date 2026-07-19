@@ -1,3 +1,4 @@
+import { YEAR_MAX, YEAR_MIN } from '../constants';
 import { lunarInfo } from '../data/lunar-info';
 import { Gan, Zhi, sTermInfo, solarMonth } from '../data/terms';
 import type { LunarResult } from './types';
@@ -63,7 +64,7 @@ export function Lunar(objDate: Date): LunarResult {
 	let i: number;
 	let leap = 0;
 	let temp = 0;
-	const baseDate = new Date(1900, 0, 31);
+	const baseDate = new Date(YEAR_MIN, 0, 31);
 	let offset = (objDate.getTime() - baseDate.getTime()) / 86400000;
 
 	const result: LunarResult = {
@@ -76,7 +77,7 @@ export function Lunar(objDate: Date): LunarResult {
 		dayCyl: offset + 40,
 	};
 
-	for (i = 1900; i < 2050 && offset > 0; i++) {
+	for (i = YEAR_MIN; i < YEAR_MAX + 1 && offset > 0; i++) {
 		temp = lYearDays(i);
 		offset -= temp;
 		result.monCyl += 12;
@@ -137,7 +138,7 @@ export function lunarToSolar(
 	isLeapMonth = false,
 ): Date {
 	let offset = 0;
-	for (let y = 1900; y < lunarYear; y++) {
+	for (let y = YEAR_MIN; y < lunarYear; y++) {
 		offset += lYearDays(y);
 	}
 
@@ -153,7 +154,7 @@ export function lunarToSolar(
 
 	offset += lunarDay - 1;
 
-	const base = new Date(1900, 0, 31);
+	const base = new Date(YEAR_MIN, 0, 31);
 	const result = new Date(base.getFullYear(), base.getMonth(), base.getDate());
 	result.setDate(result.getDate() + offset);
 	return result;

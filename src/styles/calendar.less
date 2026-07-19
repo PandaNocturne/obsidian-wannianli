@@ -264,6 +264,7 @@
 }
 
 .wnl-day {
+	position: relative;
 	vertical-align: top;
 	text-align: center;
 	padding: 4px 2px;
@@ -285,6 +286,14 @@
 		background: transparent;
 	}
 
+	&--holiday:not(.wnl-day--today) {
+		background: @wnl-holiday-bg;
+	}
+
+	&--workday:not(.wnl-day--today) {
+		background: @wnl-workday-bg;
+	}
+
 	&--today {
 		background: @wnl-today-bg !important;
 	}
@@ -296,6 +305,24 @@
 
 	&--clickable {
 		cursor: pointer;
+	}
+
+	&__badge {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		font-size: 0.62rem;
+		line-height: 1;
+		font-weight: 700;
+		pointer-events: none;
+	}
+
+	&--holiday &__badge {
+		color: @wnl-holiday-badge;
+	}
+
+	&--workday &__badge {
+		color: @wnl-workday-badge;
 	}
 
 	&__solar {

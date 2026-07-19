@@ -34,6 +34,18 @@ export interface CustomEvent {
 	builtin?: boolean;
 }
 
+/** 国务院放假安排单日（holiday-cn） */
+export interface HolidayDay {
+	name: string;
+	date: string; // YYYY-MM-DD
+	isOffDay: boolean; // true=放假, false=补班
+}
+
+export interface HolidayCache {
+	updatedAt: number;
+	years: Record<string, HolidayDay[]>;
+}
+
 export interface WannianliSettings {
 	eventCategories: EventCategory[];
 	customEvents: CustomEvent[];
@@ -47,6 +59,8 @@ export interface WannianliSettings {
 	monthWidth: number;
 	/** 月卡片网格间距（px） */
 	gridGap: number;
+	/** 国务院法定节假日 / 调休本地缓存 */
+	holidayCache: HolidayCache;
 }
 
 export const DEFAULT_EVENT_CATEGORIES: EventCategory[] = [
@@ -74,6 +88,11 @@ export const MONTH_WIDTH_MIN = 300;
 export const MONTH_WIDTH_MAX = 600;
 export const MONTH_WIDTH_DEFAULT = 420;
 
+export const DEFAULT_HOLIDAY_CACHE: HolidayCache = {
+	updatedAt: 0,
+	years: {},
+};
+
 export const DEFAULT_SETTINGS: WannianliSettings = {
 	eventCategories: DEFAULT_EVENT_CATEGORIES.map((c) => ({ ...c })),
 	customEvents: DEFAULT_CUSTOM_EVENTS.map((e) => ({ ...e })),
@@ -82,6 +101,7 @@ export const DEFAULT_SETTINGS: WannianliSettings = {
 	colorfulTheme: true,
 	monthWidth: MONTH_WIDTH_DEFAULT,
 	gridGap: GRID_GAP_DEFAULT,
+	holidayCache: { ...DEFAULT_HOLIDAY_CACHE, years: {} },
 };
 
 export function clampGridGap(value: number): number {
@@ -237,6 +257,39 @@ export function normalizeCustomEvents(
 export function normalizeRemovedBuiltinIds(raw: unknown): string[] {
 	if (!Array.isArray(raw)) return [];
 	return raw.filter((id): id is string => typeof id === 'string' && id.length > 0);
+}
+
+export function normalizeHolidayCache(raw: unknown): HolidayCache {
+	if (!raw || typeof raw !== 'object') {
+		return { updatedAt: 0, years: {} };
+	}
+	const obj = raw as Partial<HolidayCache>;
+	const updatedAt =
+		typeof obj.updatedAt === 'number' && Number.isFinite(obj.updatedAt)
+			? obj.updatedAt
+			: 0;
+	const years: Record<string, HolidayDay[]> = {};
+	if (obj.years && typeof obj.years === 'object') {
+		for (const [key, list] of Object.entries(obj.years)) {
+			if (!Array.isArray(list)) continue;
+			const days: HolidayDay[] = [];
+			for (const item of list) {
+				if (!item || typeof item !== 'object') continue;
+				const d = item as Partial<HolidayDay>;
+				if (
+					typeof d.name !== 'string' ||
+					typeof d.date !== 'string' ||
+					typeof d.isOffDay !== 'boolean'
+				) {
+					continue;
+				}
+				if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date)) continue;
+				days.push({ name: d.name, date: d.date, isOffDay: d.isOffDay });
+			}
+			years[key] = days;
+		}
+	}
+	return { updatedAt, years };
 }
 
 export function userEventCategories(categories: EventCategory[]): EventCategory[] {

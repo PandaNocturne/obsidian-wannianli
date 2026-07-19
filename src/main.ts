@@ -7,11 +7,13 @@ import {
 	setEventCategories,
 	setRemovedBuiltinIds,
 } from './scripts/data/event-store';
+import { setHolidayCache, syncHolidayCache } from './scripts/data/holiday-sync';
 import {
 	DEFAULT_SETTINGS,
 	normalizeCustomEvents,
 	normalizeDisplaySettings,
 	normalizeEventCategories,
+	normalizeHolidayCache,
 	normalizeRemovedBuiltinIds,
 	type WannianliSettings,
 } from './scripts/data/settings';
@@ -39,6 +41,25 @@ export default class WannianliPlugin extends Plugin {
 				void this.activateView();
 			},
 		});
+
+		void this.syncHolidaysInBackground();
+	}
+
+	/** 异步同步国务院放假数据，不阻塞视图打开 */
+	private async syncHolidaysInBackground(): Promise<void> {
+		try {
+			const changed = await syncHolidayCache(this);
+			if (changed) this.refreshOpenViews();
+		} catch (err) {
+			console.warn('[万年历] holiday sync error', err);
+		}
+	}
+
+	refreshOpenViews(): void {
+		for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_WANNIANLI)) {
+			const view = leaf.view;
+			if (view instanceof WannianliView) view.refreshCalendar();
+		}
 	}
 
 	onunload(): void {
@@ -57,10 +78,12 @@ export default class WannianliPlugin extends Plugin {
 			? normalizeCustomEvents(data.customEvents, eventCategories)
 			: DEFAULT_SETTINGS.customEvents.map((e) => ({ ...e }));
 		const display = normalizeDisplaySettings(data);
+		const holidayCache = normalizeHolidayCache(data?.holidayCache);
 
 		setEventCategories(eventCategories);
 		setRemovedBuiltinIds(removedBuiltinIds);
 		setCustomEvents(customEvents);
+		setHolidayCache(holidayCache);
 
 		this.settings = {
 			...DEFAULT_SETTINGS,
@@ -69,6 +92,7 @@ export default class WannianliPlugin extends Plugin {
 			eventCategories,
 			customEvents: getCustomEvents(),
 			removedBuiltinIds: getRemovedBuiltinIds(),
+			holidayCache,
 		};
 
 		// 首次种子写入内置节假日后落盘

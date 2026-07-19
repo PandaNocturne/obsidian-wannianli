@@ -1,3 +1,4 @@
+import { YEAR_MAX, YEAR_MIN } from '../constants';
 import {
 	getChuxiLabel,
 	getLunarFestivalNames,
@@ -43,15 +44,15 @@ export function calendar(y: number, m: number, d: number): CalElement {
 		/* 节气计算失败时忽略 */
 	}
 
-	if (cld.sYear < 1900 || cld.sYear > 2049) return cld;
+	if (cld.sYear < YEAR_MIN || cld.sYear > YEAR_MAX) return cld;
 
 	try {
-		const baseDate = new Date(1900, 0, 31);
+		const baseDate = new Date(YEAR_MIN, 0, 31);
 		const targetDate = new Date(y, m, d);
 		let temp = Math.floor((targetDate.getTime() - baseDate.getTime()) / 86400000);
 
-		let i = 1900;
-		for (; i <= 2050 && temp > 0; i++) {
+		let i = YEAR_MIN;
+		for (; i <= YEAR_MAX + 1 && temp > 0; i++) {
 			const yearDays = lYearDays(i);
 			if (temp >= yearDays) {
 				temp -= yearDays;
