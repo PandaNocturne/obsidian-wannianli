@@ -140,22 +140,27 @@ export function normalizeEventCategories(raw: unknown): EventCategory[] {
 	const list: EventCategory[] = [];
 	const seen = new Set<string>();
 
-	list.push({ id: BUILTIN_CATEGORY_ID, name: '默认', locked: true });
-	seen.add(BUILTIN_CATEGORY_ID);
-
 	if (Array.isArray(raw)) {
 		for (const item of raw) {
 			if (!item || typeof item !== 'object') continue;
 			const c = item as Partial<EventCategory>;
 			if (typeof c.id !== 'string' || typeof c.name !== 'string') continue;
-			if (c.id === BUILTIN_CATEGORY_ID || seen.has(c.id)) continue;
+			if (seen.has(c.id)) continue;
 			const name = c.name.trim();
+			if (c.id === BUILTIN_CATEGORY_ID) {
+				list.push({ id: BUILTIN_CATEGORY_ID, name: name || '默认', locked: true });
+				seen.add(c.id);
+				continue;
+			}
 			if (!name) continue;
 			list.push({ id: c.id, name });
 			seen.add(c.id);
 		}
 	}
 
+	if (!seen.has(BUILTIN_CATEGORY_ID)) {
+		list.unshift({ id: BUILTIN_CATEGORY_ID, name: '默认', locked: true });
+	}
 	if (!seen.has(BIRTHDAY_CATEGORY_ID)) {
 		list.push({ id: BIRTHDAY_CATEGORY_ID, name: '生日' });
 	}

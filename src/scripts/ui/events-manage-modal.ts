@@ -8,6 +8,7 @@ import {
 	removeEventCategory,
 	upsertCustomEvent,
 	upsertEventCategory,
+	reorderEventCategories,
 } from '../data/event-store';
 import {
 	BIRTHDAY_CATEGORY_ID,
@@ -58,7 +59,7 @@ export class EventsManageModal extends Modal {
 	}
 
 	onOpen(): void {
-		this.setTitle('自定义事件');
+		this.setTitle('事件管理');
 		this.modalEl.addClass('wnl-event-modal-host');
 		this.ensureActiveTab();
 		this.render();
@@ -106,6 +107,9 @@ export class EventsManageModal extends Modal {
 			onRename: (cat) => this.openRenameCategory(cat),
 			onDelete: (cat) => {
 				void this.deleteCategory(cat.id);
+			},
+			onReorder: (orderedIds) => {
+				void this.reorderCategories(orderedIds);
 			},
 			canDelete: () => userEventCategories(categories).length > 1,
 		});
@@ -409,9 +413,17 @@ export class EventsManageModal extends Modal {
 	}
 
 	private openRenameCategory(cat: EventCategory): void {
-		new NamePromptModal(this.app, '重命名标签', cat.name, '标签名称', (name) =>
+		new NamePromptModal(this.app, '编辑标签', cat.name, '标签名称', (name) =>
 			this.renameCategory(cat.id, name),
 		).open();
+	}
+
+	private async reorderCategories(orderedIds: string[]): Promise<void> {
+		const categories = reorderEventCategories(orderedIds);
+		this.plugin.settings.eventCategories = categories;
+		await this.plugin.saveSettings();
+		this.changed = true;
+		this.render();
 	}
 
 	private async addCategory(name: string): Promise<void> {

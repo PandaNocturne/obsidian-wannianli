@@ -108,6 +108,27 @@ export function upsertEventCategory(category: EventCategory): EventCategory[] {
 	return getEventCategories();
 }
 
+/** 按给定 id 顺序重排标签页 */
+export function reorderEventCategories(orderedIds: string[]): EventCategory[] {
+	const byId = new Map(eventCategories.map((c) => [c.id, c]));
+	const next: EventCategory[] = [];
+	const seen = new Set<string>();
+
+	for (const id of orderedIds) {
+		const cat = byId.get(id);
+		if (!cat || seen.has(id)) continue;
+		next.push({ ...cat });
+		seen.add(id);
+	}
+	for (const cat of eventCategories) {
+		if (seen.has(cat.id)) continue;
+		next.push({ ...cat });
+	}
+
+	eventCategories = normalizeEventCategories(next);
+	return getEventCategories();
+}
+
 /** 删除标签页：事件迁移到生日（或首个可用标签） */
 export function removeEventCategory(id: string): {
 	categories: EventCategory[];
