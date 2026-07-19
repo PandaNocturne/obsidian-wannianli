@@ -1,3 +1,5 @@
+import type { EventKind } from './settings';
+
 /**
  * 公历节日：MMDD + 空格 + 名称
  */
@@ -28,6 +30,7 @@ export const sFtv = [
 
 /**
  * 农历节日：MMDD + 空格 + 名称
+ * day=00 表示除夕（农历十二月最后一天）
  * （个人纪念日请通过日历点击日期添加，存于插件设置）
  */
 export const lFtv = [
@@ -42,3 +45,64 @@ export const lFtv = [
 	'1224 小年',
 	'0100 除夕',
 ];
+
+/** 内置节假日条目 */
+export interface BuiltInFestival {
+	kind: EventKind;
+	/** 1–12；除夕为 12 */
+	month: number;
+	/** 1–31；除夕为 0 */
+	day: number;
+	name: string;
+}
+
+function parseFestivalEntries(items: string[], kind: EventKind): BuiltInFestival[] {
+	const result: BuiltInFestival[] = [];
+	for (const item of items) {
+		const month = parseInt(item.substring(0, 2), 10);
+		const day = parseInt(item.substring(2, 4), 10);
+		if (Number.isNaN(month) || Number.isNaN(day)) continue;
+		const rest = item.substring(5).trim();
+		for (const name of rest.split(/\s+/)) {
+			if (!name) continue;
+			result.push({
+				kind,
+				month: name === '除夕' ? 12 : month,
+				day,
+				name,
+			});
+		}
+	}
+	return result;
+}
+
+/** 全部内置节假日（按月日排序） */
+export function listBuiltInFestivals(): BuiltInFestival[] {
+	const all = [...parseFestivalEntries(sFtv, 'solar'), ...parseFestivalEntries(lFtv, 'lunar')];
+	return all.sort((a, b) => {
+		if (a.kind !== b.kind) return a.kind === 'solar' ? -1 : 1;
+		if (a.month !== b.month) return a.month - b.month;
+		if (a.day !== b.day) return a.day - b.day;
+		return a.name.localeCompare(b.name, 'zh-CN');
+	});
+}
+
+/** 命中指定月日的内置节假日（不含除夕特殊日） */
+export function findBuiltInFestivals(
+	kind: EventKind,
+	month: number,
+	day: number,
+): BuiltInFestival[] {
+	return listBuiltInFestivals().filter(
+		(f) => f.kind === kind && f.month === month && f.day === day,
+	);
+}
+
+export function formatBuiltInFestivalDate(festival: BuiltInFestival): string {
+	if (festival.name === '除夕' || festival.day === 0) {
+		return '农历十二月 除夕';
+	}
+	return festival.kind === 'solar'
+		? `阳历 ${festival.month}月${festival.day}日`
+		: `阴历 ${festival.month}月${festival.day}日`;
+}

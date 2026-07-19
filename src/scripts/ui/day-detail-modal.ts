@@ -1,4 +1,4 @@
-import { Modal } from 'obsidian';
+import { Modal, setIcon } from 'obsidian';
 import type WannianliPlugin from '../../main';
 import { YEAR_MAX, YEAR_MIN } from '../constants';
 import { buildDayDetail, shiftSolarDate, type DayDetailModel } from '../lunar/day-detail';
@@ -52,57 +52,67 @@ export class DayDetailModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('wnl-day-detail');
+		contentEl.addClass(`wnl-day-detail--m${this.m}`);
 
-		contentEl.createDiv({
+		const hero = contentEl.createDiv({ cls: 'wnl-day-detail__hero' });
+
+		const top = hero.createDiv({ cls: 'wnl-day-detail__top' });
+		top.createDiv({
 			cls: 'wnl-day-detail__header',
 			text: model.headerText,
 		});
-
 		if (model.isToday) {
-			contentEl.createDiv({ cls: 'wnl-day-detail__today', text: '今天' });
+			top.createSpan({ cls: 'wnl-day-detail__today', text: '今天' });
 		}
 
-		const nav = contentEl.createDiv({ cls: 'wnl-day-detail__nav' });
+		const nav = hero.createDiv({ cls: 'wnl-day-detail__nav' });
 		const prev = nav.createEl('button', {
 			cls: 'wnl-day-detail__arrow',
 			attr: { 'aria-label': '前一天', type: 'button' },
 		});
-		prev.setText('‹');
+		setIcon(prev, 'chevron-left');
 		prev.disabled = !this.canShift(-1);
 		prev.addEventListener('click', () => this.shift(-1));
 
-		nav.createDiv({
+		const dayBlock = nav.createDiv({ cls: 'wnl-day-detail__dayblock' });
+		dayBlock.createDiv({
 			cls: 'wnl-day-detail__daynum',
 			text: String(this.d),
+		});
+		dayBlock.createDiv({
+			cls: 'wnl-day-detail__weekday',
+			text: `星期${WEEK_CN[model.info.week] ?? ''}`,
 		});
 
 		const next = nav.createEl('button', {
 			cls: 'wnl-day-detail__arrow',
 			attr: { 'aria-label': '后一天', type: 'button' },
 		});
-		next.setText('›');
+		setIcon(next, 'chevron-right');
 		next.disabled = !this.canShift(1);
 		next.addEventListener('click', () => this.shift(1));
 
-		contentEl.createDiv({
+		hero.createDiv({
 			cls: 'wnl-day-detail__lunar',
-			text: `(${model.zodiac}年) ${model.lunarText}`,
+			text: `${model.zodiac}年 · ${model.lunarText}`,
 		});
 
-		contentEl.createDiv({
+		hero.createDiv({
 			cls: 'wnl-day-detail__ganzhi',
 			text: model.ganzhiText,
 		});
 
-		this.renderMeta(contentEl, model);
-		this.renderYiJi(contentEl, model);
+		const body = contentEl.createDiv({ cls: 'wnl-day-detail__body' });
+		this.renderMeta(body, model);
+		this.renderYiJi(body, model);
 
-		const actions = contentEl.createDiv({ cls: 'wnl-day-detail__actions' });
+		const actions = body.createDiv({ cls: 'wnl-day-detail__actions' });
 		const manageBtn = actions.createEl('button', {
-			cls: 'wnl-btn',
-			text: '管理自定义事件',
+			cls: 'wnl-day-detail__linkbtn',
 			attr: { type: 'button' },
 		});
+		setIcon(manageBtn, 'calendar-plus');
+		manageBtn.createSpan({ text: '当日事件' });
 		manageBtn.addEventListener('click', () => {
 			new DayEventModal(this.plugin, model.info, (result) => {
 				if (result.changed) {
@@ -118,12 +128,12 @@ export class DayDetailModal extends Modal {
 
 		const dao = model.almanac;
 		if (dao.jianChu) {
-			const pill = meta.createSpan({ cls: 'wnl-day-detail__pill' });
-			pill.createSpan({ text: dao.jianChu });
+			const pill = meta.createDiv({ cls: 'wnl-day-detail__pill' });
+			pill.createSpan({ cls: 'wnl-day-detail__pill-main', text: dao.jianChu });
 			pill.createSpan({
 				cls: dao.isHuangDao
-					? 'wnl-day-detail__pill--huang'
-					: 'wnl-day-detail__pill--hei',
+					? 'wnl-day-detail__pill-sub wnl-day-detail__pill-sub--huang'
+					: 'wnl-day-detail__pill-sub wnl-day-detail__pill-sub--hei',
 				text: dao.isHuangDao ? `黄道·${dao.huangDao}` : `黑道·${dao.huangDao}`,
 			});
 		}
@@ -168,3 +178,5 @@ export class DayDetailModal extends Modal {
 		this.render();
 	}
 }
+
+const WEEK_CN = ['日', '一', '二', '三', '四', '五', '六'];

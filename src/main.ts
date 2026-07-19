@@ -1,8 +1,10 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import { VIEW_TYPE_WANNIANLI } from './scripts/constants';
-import { setCustomEvents } from './scripts/data/event-store';
+import { setCustomEvents, setEventCategories } from './scripts/data/event-store';
 import {
 	DEFAULT_SETTINGS,
+	normalizeCustomEvents,
+	normalizeEventCategories,
 	type WannianliSettings,
 } from './scripts/data/settings';
 import { WannianliView } from './scripts/views/calendar-view';
@@ -37,15 +39,25 @@ export default class WannianliPlugin extends Plugin {
 
 	async loadSettings(): Promise<void> {
 		const data = (await this.loadData()) as Partial<WannianliSettings> | null;
+		const eventCategories = normalizeEventCategories(
+			data?.eventCategories ?? DEFAULT_SETTINGS.eventCategories,
+		);
+		const customEvents = data?.customEvents
+			? normalizeCustomEvents(data.customEvents, eventCategories)
+			: DEFAULT_SETTINGS.customEvents.map((e) => ({ ...e }));
+
 		this.settings = {
 			...DEFAULT_SETTINGS,
 			...data,
-			customEvents: data?.customEvents ?? DEFAULT_SETTINGS.customEvents,
+			eventCategories,
+			customEvents,
 		};
+		setEventCategories(this.settings.eventCategories);
 		setCustomEvents(this.settings.customEvents);
 	}
 
 	async saveSettings(): Promise<void> {
+		setEventCategories(this.settings.eventCategories);
 		setCustomEvents(this.settings.customEvents);
 		await this.saveData(this.settings);
 	}

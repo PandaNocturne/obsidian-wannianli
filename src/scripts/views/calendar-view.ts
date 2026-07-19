@@ -4,6 +4,7 @@ import { VIEW_TYPE_WANNIANLI } from '../constants';
 import type { CalElement } from '../lunar';
 import { DayDetailModal } from '../ui/day-detail-modal';
 import { ClockDisplay } from '../ui/clock';
+import { EventsManageModal } from '../ui/events-manage-modal';
 import { renderToolbar, type ToolbarState } from '../ui/toolbar';
 import { destroyTooltip } from '../ui/tooltip';
 import { renderCalendarView } from './view-mode';
@@ -63,6 +64,7 @@ export class WannianliView extends ItemView {
 				this.state = { year: new Date().getFullYear() };
 				this.refresh();
 			},
+			onManageEvents: () => this.openEventsManage(),
 		});
 
 		renderCalendarView(this.boardEl, {
@@ -81,5 +83,11 @@ export class WannianliView extends ItemView {
 				if (result.changed) this.refresh();
 			},
 		).open();
+	}
+
+	private openEventsManage(): void {
+		new EventsManageModal(this.plugin, (result) => {
+			if (result.changed) this.refresh();
+		}).open();
 	}
 }

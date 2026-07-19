@@ -1,7 +1,7 @@
 import { Modal, Notice, Setting, setIcon } from 'obsidian';
 import type WannianliPlugin from '../../main';
 import {
-	findCustomEvents,
+	getCustomEvents,
 	getEventCategories,
 	removeCustomEvent,
 	removeEventCategory,
@@ -9,8 +9,8 @@ import {
 	upsertEventCategory,
 } from '../data/event-store';
 import {
-	findBuiltInFestivals,
 	formatBuiltInFestivalDate,
+	listBuiltInFestivals,
 	type BuiltInFestival,
 } from '../data/festivals';
 import {
@@ -23,30 +23,26 @@ import {
 	type EventCategory,
 	type EventKind,
 } from '../data/settings';
-import { cDay, lunarMonthToChinese } from '../lunar';
-import type { CalElement } from '../lunar/types';
-import { lunarMonthDays } from '../lunar/lunar-calc';
 import { renderCategoryTabs } from './category-tabs';
 import { NamePromptModal } from './name-prompt-modal';
 
-export interface DayEventModalResult {
+export interface EventsManageModalResult {
 	changed: boolean;
 }
 
-/**
- * 点击某日：按标签页查看/添加当日事件
- */
-export class DayEventModal extends Modal {
+/** 顶部工具栏：按自定义标签页管理事件 */
+export class EventsManageModal extends Modal {
 	private changed = false;
 	private activeTab = BIRTHDAY_CATEGORY_ID;
 	private showAddForm = false;
 	private draftName = '';
 	private draftKind: EventKind = 'solar';
+	private draftMonth = 1;
+	private draftDay = 1;
 
 	constructor(
 		private plugin: WannianliPlugin,
-		private dayInfo: CalElement,
-		private onDone: (result: DayEventModalResult) => void,
+		private onDone: (result: EventsManageModalResult) => void,
 	) {
 		super(plugin.app);
 	}
@@ -73,34 +69,25 @@ export class DayEventModal extends Modal {
 
 	private render(): void {
 		this.ensureActiveTab();
-		const { contentEl, dayInfo } = this;
+		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('wnl-event-modal');
 
-		const leap = dayInfo.isLeap ? '闰' : '';
-		const lMonthCn = dayInfo.lMonth ? lunarMonthToChinese(dayInfo.lMonth) : '';
-		const lDayCn = dayInfo.lDay ? cDay(dayInfo.lDay) : '';
-
 		const categories = getEventCategories();
-		const builtIns = collectDayBuiltIns(dayInfo);
-		const dayCustoms = [
-			...findCustomEvents('solar', dayInfo.sMonth, dayInfo.sDay),
-			...(dayInfo.lMonth && dayInfo.lDay && !dayInfo.isLeap
-				? findCustomEvents('lunar', dayInfo.lMonth, dayInfo.lDay)
-				: []),
-		];
+		const customs = sortEvents(getCustomEvents());
+		const builtIns = listBuiltInFestivals();
 		const counts: Record<string, number> = {};
 		for (const cat of categories) {
 			counts[cat.id] =
 				cat.id === BUILTIN_CATEGORY_ID
 					? builtIns.length
-					: dayCustoms.filter((e) => e.categoryId === cat.id).length;
+					: customs.filter((e) => e.categoryId === cat.id).length;
 		}
 
 		const toolbar = contentEl.createDiv({ cls: 'wnl-event-modal__toolbar' });
 		toolbar.createDiv({
 			cls: 'wnl-event-modal__summary',
-			text: `公历 ${dayInfo.sYear}年${dayInfo.sMonth}月${dayInfo.sDay}日 · 农历${leap}${lMonthCn}月${lDayCn}`,
+			text: '「默认」为内置节假日。右键标签可改名/删除；栏尾 + 新建标签；页内 + 添加事件',
 		});
 		renderCategoryTabs(toolbar, {
 			categories,
@@ -125,21 +112,22 @@ export class DayEventModal extends Modal {
 		} else {
 			this.renderCategoryTab(
 				panel,
-				dayCustoms.filter((e) => e.categoryId === this.activeTab),
+				customs.filter((e) => e.categoryId === this.activeTab),
 				categories,
 			);
 			this.renderAddFooter(contentEl);
 			if (this.showAddForm) {
-				this.renderAddDrawer(contentEl, leap, lMonthCn, lDayCn);
+				this.renderAddDrawer(contentEl);
 			}
 		}
 	}
 
 	private renderBuiltinTab(parent: HTMLElement, builtIns: BuiltInFestival[]): void {
+		parent.createEl('h4', { text: '内置节假日', cls: 'wnl-event-modal__heading' });
 		if (builtIns.length === 0) {
 			parent.createDiv({
 				cls: 'wnl-event-modal__empty',
-				text: '当日无内置节假日',
+				text: '暂无内置节假日',
 			});
 			return;
 		}
@@ -162,11 +150,13 @@ export class DayEventModal extends Modal {
 		if (events.length === 0 && !this.showAddForm) {
 			parent.createDiv({
 				cls: 'wnl-event-modal__empty',
-				text: '当日该标签下暂无事件，点击底部 + 添加',
+				text: '该标签下暂无事件，点击底部 + 添加',
 			});
 			return;
 		}
-		this.renderEventList(parent, events, categories);
+		for (const event of events) {
+			this.renderEventRow(parent, event, categories);
+		}
 	}
 
 	private renderAddFooter(parent: HTMLElement): void {
@@ -183,15 +173,11 @@ export class DayEventModal extends Modal {
 		});
 	}
 
-	private renderAddDrawer(
-		parent: HTMLElement,
-		leap: string,
-		lMonthCn: string,
-		lDayCn: string,
-	): void {
-		const { dayInfo } = this;
+	private renderAddDrawer(parent: HTMLElement): void {
 		const overlay = parent.createDiv({ cls: 'wnl-event-modal__drawer-overlay' });
-		overlay.addEventListener('click', () => this.closeAddDrawer());
+		overlay.addEventListener('click', () => {
+			this.closeAddDrawer();
+		});
 
 		const sheet = parent.createDiv({ cls: 'wnl-event-modal__drawer' });
 		sheet.addEventListener('click', (evt) => evt.stopPropagation());
@@ -221,16 +207,39 @@ export class DayEventModal extends Modal {
 		new Setting(form)
 			.setName('类型')
 			.addDropdown((dd) => {
-				dd.addOption('solar', `阳历 ${dayInfo.sMonth}月${dayInfo.sDay}日`);
-				if (dayInfo.lMonth && dayInfo.lDay && !dayInfo.isLeap) {
-					dd.addOption(
-						'lunar',
-						`阴历 ${leap}${lMonthCn}月${lDayCn}（${dayInfo.lMonth}月${dayInfo.lDay}日）`,
-					);
-				}
+				dd.addOption('solar', '阳历（公历）');
+				dd.addOption('lunar', '阴历（农历）');
 				dd.setValue(this.draftKind);
 				dd.onChange((v) => {
 					this.draftKind = v as EventKind;
+					const maxDay = this.draftKind === 'lunar' ? 30 : 31;
+					if (this.draftDay > maxDay) this.draftDay = maxDay;
+					this.render();
+				});
+			});
+
+		new Setting(form)
+			.setName('月')
+			.addDropdown((dd) => {
+				for (let m = 1; m <= 12; m++) {
+					dd.addOption(String(m), `${m}月`);
+				}
+				dd.setValue(String(this.draftMonth));
+				dd.onChange((v) => {
+					this.draftMonth = parseInt(v, 10);
+				});
+			});
+
+		new Setting(form)
+			.setName('日')
+			.addDropdown((dd) => {
+				const maxDay = this.draftKind === 'lunar' ? 30 : 31;
+				for (let d = 1; d <= maxDay; d++) {
+					dd.addOption(String(d), `${d}日`);
+				}
+				dd.setValue(String(Math.min(this.draftDay, maxDay)));
+				dd.onChange((v) => {
+					this.draftDay = parseInt(v, 10);
 				});
 			});
 
@@ -258,56 +267,50 @@ export class DayEventModal extends Modal {
 		this.render();
 	}
 
-	private renderEventList(
+	private renderEventRow(
 		parent: HTMLElement,
-		events: CustomEvent[],
+		event: CustomEvent,
 		categories: EventCategory[],
 	): void {
+		const row = parent.createDiv({ cls: 'wnl-event-modal__row' });
+		let editName = event.name;
+		let editCategoryId = event.categoryId;
 		const userCats = userEventCategories(categories);
-		for (const event of events) {
-			const row = parent.createDiv({ cls: 'wnl-event-modal__row' });
-			let editName = event.name;
-			let editCategoryId = event.categoryId;
 
-			new Setting(row)
-				.setName(event.name)
-				.setDesc(
-					event.kind === 'solar'
-						? `阳历 ${event.month}月${event.day}日`
-						: `阴历 ${event.month}月${event.day}日`,
-				)
-				.addText((text) => {
-					text.setValue(event.name);
-					text.onChange((v) => {
-						editName = v;
-					});
-				})
-				.addDropdown((dd) => {
-					for (const cat of userCats) {
-						dd.addOption(cat.id, cat.name);
-					}
-					dd.setValue(editCategoryId);
-					dd.onChange((v) => {
-						editCategoryId = v;
-					});
-				})
-				.addButton((btn) => {
-					btn.setButtonText('保存').onClick(() => {
-						void this.saveEvent({
-							...event,
-							name: editName.trim(),
-							categoryId: editCategoryId,
-						});
-					});
-				})
-				.addButton((btn) => {
-					btn.setButtonText('删除')
-						.setWarning()
-						.onClick(() => {
-							void this.deleteEvent(event.id);
-						});
+		new Setting(row)
+			.setName(event.name)
+			.setDesc(formatEventDate(event))
+			.addText((text) => {
+				text.setValue(event.name);
+				text.onChange((v) => {
+					editName = v;
 				});
-		}
+			})
+			.addDropdown((dd) => {
+				for (const cat of userCats) {
+					dd.addOption(cat.id, cat.name);
+				}
+				dd.setValue(editCategoryId);
+				dd.onChange((v) => {
+					editCategoryId = v;
+				});
+			})
+			.addButton((btn) => {
+				btn.setButtonText('保存').onClick(() => {
+					void this.saveEvent({
+						...event,
+						name: editName.trim(),
+						categoryId: editCategoryId,
+					});
+				});
+			})
+			.addButton((btn) => {
+				btn.setButtonText('删除')
+					.setWarning()
+					.onClick(() => {
+						void this.deleteEvent(event.id);
+					});
+			});
 	}
 
 	private openCreateCategory(): void {
@@ -387,33 +390,23 @@ export class DayEventModal extends Modal {
 			new Notice('请填写事件名称');
 			return;
 		}
+		if (!isValidMonthDay(this.draftKind, this.draftMonth, this.draftDay)) {
+			new Notice('日期无效');
+			return;
+		}
 		if (this.activeTab === BUILTIN_CATEGORY_ID) {
 			new Notice('请先选择自定义标签页');
 			return;
 		}
 
-		const { dayInfo } = this;
-		const month = this.draftKind === 'solar' ? dayInfo.sMonth : dayInfo.lMonth;
-		const day = this.draftKind === 'solar' ? dayInfo.sDay : dayInfo.lDay;
-
-		if (!month || !day) {
-			new Notice('无法确定日期');
-			return;
-		}
-
-		if (this.draftKind === 'lunar' && dayInfo.isLeap) {
-			new Notice('闰月日期暂不支持添加阴历事件');
-			return;
-		}
-
-		await this.persist(
+		await this.persistEvents(
 			upsertCustomEvent({
 				id: createEventId(),
 				name,
 				kind: this.draftKind,
 				categoryId: this.activeTab,
-				month,
-				day,
+				month: this.draftMonth,
+				day: this.draftDay,
 			}),
 		);
 
@@ -429,7 +422,7 @@ export class DayEventModal extends Modal {
 			new Notice('名称不能为空');
 			return;
 		}
-		await this.persist(upsertCustomEvent(event));
+		await this.persistEvents(upsertCustomEvent(event));
 		this.changed = true;
 		this.activeTab = event.categoryId;
 		new Notice('已保存');
@@ -437,32 +430,35 @@ export class DayEventModal extends Modal {
 	}
 
 	private async deleteEvent(id: string): Promise<void> {
-		await this.persist(removeCustomEvent(id));
+		await this.persistEvents(removeCustomEvent(id));
 		this.changed = true;
 		new Notice('已删除');
 		this.render();
 	}
 
-	private async persist(events: CustomEvent[]): Promise<void> {
+	private async persistEvents(events: CustomEvent[]): Promise<void> {
 		this.plugin.settings.customEvents = events;
 		await this.plugin.saveSettings();
 	}
 }
 
-function collectDayBuiltIns(dayInfo: CalElement): BuiltInFestival[] {
-	const result: BuiltInFestival[] = [
-		...findBuiltInFestivals('solar', dayInfo.sMonth, dayInfo.sDay),
-	];
+function formatEventDate(event: CustomEvent): string {
+	return event.kind === 'solar'
+		? `阳历 ${event.month}月${event.day}日`
+		: `阴历 ${event.month}月${event.day}日`;
+}
 
-	if (dayInfo.lMonth && dayInfo.lDay && !dayInfo.isLeap) {
-		result.push(...findBuiltInFestivals('lunar', dayInfo.lMonth, dayInfo.lDay));
-		const isChuxi =
-			dayInfo.lMonth === 12 &&
-			dayInfo.lDay === lunarMonthDays(dayInfo.lYear, 12);
-		if (isChuxi) {
-			result.push({ kind: 'lunar', month: 12, day: 0, name: '除夕' });
-		}
-	}
+function sortEvents(events: CustomEvent[]): CustomEvent[] {
+	return [...events].sort((a, b) => {
+		if (a.kind !== b.kind) return a.kind === 'solar' ? -1 : 1;
+		if (a.month !== b.month) return a.month - b.month;
+		return a.day - b.day;
+	});
+}
 
-	return result;
+function isValidMonthDay(kind: EventKind, month: number, day: number): boolean {
+	if (month < 1 || month > 12 || day < 1) return false;
+	if (kind === 'lunar') return day <= 30;
+	const maxDays = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
+	return day <= (maxDays[month - 1] ?? 0);
 }
