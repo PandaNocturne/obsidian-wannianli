@@ -20,11 +20,9 @@ import {
 } from '../data/settings';
 import { renderCategoryTabs } from './category-tabs';
 import {
-	fillDayOptions,
-	fillMonthOptions,
 	formatEventDate,
 	isValidMonthDay,
-	maxDayForKind,
+	renderMonthDayPicker,
 } from './event-date';
 import { NamePromptModal } from './name-prompt-modal';
 
@@ -43,12 +41,14 @@ export class EventsManageModal extends Modal {
 	private draftMonth = 1;
 	private draftDay = 1;
 	private draftVisible = true;
+	private draftNote = '';
 	private editName = '';
 	private editCategoryId = BIRTHDAY_CATEGORY_ID;
 	private editKind: EventKind = 'solar';
 	private editMonth = 1;
 	private editDay = 1;
 	private editVisible = true;
+	private editNote = '';
 
 	constructor(
 		private plugin: WannianliPlugin,
@@ -181,6 +181,7 @@ export class EventsManageModal extends Modal {
 
 		new Setting(form)
 			.setName('名称')
+			.setClass('wnl-setting-block')
 			.addText((text) => {
 				text.setPlaceholder('例如：我的生日').setValue(this.draftName);
 				text.onChange((v) => {
@@ -188,36 +189,27 @@ export class EventsManageModal extends Modal {
 				});
 			});
 
-		new Setting(form)
-			.setName('类型')
-			.addDropdown((dd) => {
-				dd.addOption('solar', '阳历（公历）');
-				dd.addOption('lunar', '阴历（农历）');
-				dd.setValue(this.draftKind);
-				dd.onChange((v) => {
-					this.draftKind = v as EventKind;
-					if (this.draftDay > maxDayForKind(this.draftKind)) {
-						this.draftDay = maxDayForKind(this.draftKind);
-					}
-					this.render();
-				});
-			});
+		renderMonthDayPicker(form, {
+			getKind: () => this.draftKind,
+			getMonth: () => this.draftMonth,
+			getDay: () => this.draftDay,
+			onKindChange: (kind) => {
+				this.draftKind = kind;
+			},
+			onChange: (month, day) => {
+				this.draftMonth = month;
+				this.draftDay = day;
+			},
+		});
 
 		new Setting(form)
-			.setName('月')
-			.addDropdown((dd) => {
-				fillMonthOptions(dd, this.draftMonth);
-				dd.onChange((v) => {
-					this.draftMonth = parseInt(v, 10);
-				});
-			});
-
-		new Setting(form)
-			.setName('日')
-			.addDropdown((dd) => {
-				fillDayOptions(dd, this.draftKind, this.draftDay);
-				dd.onChange((v) => {
-					this.draftDay = parseInt(v, 10);
+			.setName('备注')
+			.setClass('wnl-setting-block')
+			.addTextArea((text) => {
+				text.setPlaceholder('可选备注').setValue(this.draftNote);
+				text.inputEl.rows = 3;
+				text.onChange((v) => {
+					this.draftNote = v;
 				});
 			});
 
@@ -263,6 +255,7 @@ export class EventsManageModal extends Modal {
 		this.editMonth = event.month;
 		this.editDay = event.day;
 		this.editVisible = event.visible;
+		this.editNote = event.note ?? '';
 		this.render();
 	}
 
@@ -295,6 +288,7 @@ export class EventsManageModal extends Modal {
 
 		new Setting(form)
 			.setName('名称')
+			.setClass('wnl-setting-block')
 			.addText((text) => {
 				text.setValue(this.editName);
 				text.onChange((v) => {
@@ -314,36 +308,27 @@ export class EventsManageModal extends Modal {
 				});
 			});
 
-		new Setting(form)
-			.setName('类型')
-			.addDropdown((dd) => {
-				dd.addOption('solar', '阳历（公历）');
-				dd.addOption('lunar', '阴历（农历）');
-				dd.setValue(this.editKind);
-				dd.onChange((v) => {
-					this.editKind = v as EventKind;
-					if (this.editDay !== 0 && this.editDay > maxDayForKind(this.editKind)) {
-						this.editDay = maxDayForKind(this.editKind);
-					}
-					this.render();
-				});
-			});
+		renderMonthDayPicker(form, {
+			getKind: () => this.editKind,
+			getMonth: () => this.editMonth,
+			getDay: () => this.editDay,
+			onKindChange: (kind) => {
+				this.editKind = kind;
+			},
+			onChange: (month, day) => {
+				this.editMonth = month;
+				this.editDay = day;
+			},
+		});
 
 		new Setting(form)
-			.setName('月')
-			.addDropdown((dd) => {
-				fillMonthOptions(dd, this.editMonth);
-				dd.onChange((v) => {
-					this.editMonth = parseInt(v, 10);
-				});
-			});
-
-		new Setting(form)
-			.setName('日')
-			.addDropdown((dd) => {
-				fillDayOptions(dd, this.editKind, this.editDay);
-				dd.onChange((v) => {
-					this.editDay = parseInt(v, 10);
+			.setName('备注')
+			.setClass('wnl-setting-block')
+			.addTextArea((text) => {
+				text.setPlaceholder('可选备注').setValue(this.editNote);
+				text.inputEl.rows = 3;
+				text.onChange((v) => {
+					this.editNote = v;
 				});
 			});
 
@@ -386,12 +371,18 @@ export class EventsManageModal extends Modal {
 		const row = parent.createDiv({ cls: rowCls });
 		const main = row.createDiv({ cls: 'wnl-event-modal__row-main' });
 
-		const title = main.createDiv({ cls: 'wnl-event-modal__row-title' });
+		const body = main.createDiv({ cls: 'wnl-event-modal__row-body' });
+		const title = body.createDiv({ cls: 'wnl-event-modal__row-title' });
 		title.createSpan({ cls: 'wnl-event-modal__row-name', text: event.name });
 		const dateText = event.builtin
 			? `${formatEventDate(event)} · 内置${event.visible ? '' : ' · 已隐藏'}`
 			: `${formatEventDate(event)}${event.visible ? '' : ' · 已隐藏'}`;
 		title.createSpan({ cls: 'wnl-event-modal__row-date', text: dateText });
+
+		const note = (event.note ?? '').trim();
+		if (note) {
+			body.createDiv({ cls: 'wnl-event-modal__row-note', text: note });
+		}
 
 		const actions = main.createDiv({ cls: 'wnl-event-modal__row-actions' });
 
@@ -408,10 +399,14 @@ export class EventsManageModal extends Modal {
 		const editBtn = createRowIconBtn(actions, 'pencil', '编辑');
 		editBtn.addEventListener('click', () => this.openEditEvent(event));
 
-		const delBtn = createRowIconBtn(actions, 'trash-2', '删除', 'is-danger');
-		delBtn.addEventListener('click', () => {
-			void this.deleteEvent(event.id);
-		});
+		if (event.builtin) {
+			createRowIconBtn(actions, 'trash-2', '内置节日不可删除', 'is-disabled', true);
+		} else {
+			const delBtn = createRowIconBtn(actions, 'trash-2', '删除', 'is-danger');
+			delBtn.addEventListener('click', () => {
+				void this.deleteEvent(event.id);
+			});
+		}
 	}
 
 	private openCreateCategory(): void {
@@ -505,10 +500,12 @@ export class EventsManageModal extends Modal {
 				month: this.draftMonth,
 				day: this.draftDay,
 				visible: this.draftVisible,
+				note: this.draftNote.trim(),
 			}),
 		);
 
 		this.draftName = '';
+		this.draftNote = '';
 		this.draftVisible = true;
 		this.showAddForm = false;
 		this.changed = true;
@@ -539,6 +536,7 @@ export class EventsManageModal extends Modal {
 				month: this.editMonth,
 				day: this.editDay,
 				visible: this.editVisible,
+				note: this.editNote.trim(),
 			}),
 		);
 
@@ -561,6 +559,11 @@ export class EventsManageModal extends Modal {
 	}
 
 	private async deleteEvent(id: string): Promise<void> {
+		const target = getCustomEvents().find((e) => e.id === id);
+		if (target?.builtin) {
+			new Notice('内置节日不可删除');
+			return;
+		}
 		await this.persistEvents(removeCustomEvent(id));
 		this.plugin.settings.removedBuiltinIds = getRemovedBuiltinIds();
 		if (this.editingEvent?.id === id) this.editingEvent = null;
@@ -589,11 +592,13 @@ function createRowIconBtn(
 	icon: string,
 	title: string,
 	extraCls = '',
+	disabled = false,
 ): HTMLButtonElement {
 	const btn = parent.createEl('button', {
 		cls: `wnl-event-modal__icon-btn${extraCls ? ` ${extraCls}` : ''}`,
 		attr: { type: 'button', title, 'aria-label': title },
 	});
+	if (disabled) btn.disabled = true;
 	setIcon(btn, icon);
 	return btn;
 }

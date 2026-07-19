@@ -630,7 +630,191 @@ th.wnl-weekend-sun {
 }
 .wnl-event-modal__drawer-body .setting-item {
   border-top: none;
-  padding: 8px 0;
+  padding: 10px 0;
+}
+.wnl-event-modal__drawer-body .setting-item + .setting-item {
+  border-top: 1px solid var(--background-modifier-border);
+}
+.wnl-event-modal__drawer-body .wnl-date-field {
+  border-top: 1px solid var(--background-modifier-border);
+}
+.wnl-event-modal__drawer-body .wnl-date-field + .setting-item {
+  border-top: 1px solid var(--background-modifier-border);
+}
+.wnl-event-modal__drawer-body .wnl-setting-block {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.wnl-event-modal__drawer-body .wnl-setting-block .setting-item-info {
+  margin-right: 0;
+}
+.wnl-event-modal__drawer-body .wnl-setting-block .setting-item-control {
+  width: 100%;
+  justify-content: stretch;
+}
+.wnl-event-modal__drawer-body .wnl-setting-block .setting-item-control input[type='text'],
+.wnl-event-modal__drawer-body .wnl-setting-block .setting-item-control textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+.wnl-event-modal__drawer-body .wnl-setting-block .setting-item-control textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+.wnl-event-modal .wnl-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+}
+.wnl-event-modal .wnl-date-field__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 0;
+}
+.wnl-event-modal .wnl-date-field__row + .wnl-date-field__row {
+  border-top: 1px solid var(--background-modifier-border);
+}
+.wnl-event-modal .wnl-date-field__label {
+  flex: 0 0 auto;
+  font-size: var(--font-ui-medium);
+  font-weight: 500;
+  color: var(--text-normal);
+}
+.wnl-event-modal .wnl-date-field__kind {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  flex: 0 0 auto;
+  margin-left: auto;
+  min-width: 7.5em;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--background-modifier-border);
+}
+.wnl-event-modal .wnl-date-field__kind-btn {
+  appearance: none;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.wnl-event-modal .wnl-date-field__kind-btn:hover:not(.is-active) {
+  background: var(--background-modifier-hover);
+}
+.wnl-event-modal .wnl-date-field__kind-btn.is-active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--interactive-accent) 35%, transparent);
+}
+.wnl-event-modal .wnl-date-field__parts {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: auto;
+}
+.wnl-event-modal .wnl-date-field__part {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.wnl-event-modal .wnl-date-field__control {
+  display: inline-flex;
+  align-items: stretch;
+  height: 36px;
+  overflow: hidden;
+  border-radius: 9px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-modifier-form-field);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.wnl-event-modal .wnl-date-field__control:focus-within {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 22%, transparent);
+}
+.wnl-event-modal .wnl-date-field__input {
+  width: 2.6em;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-normal);
+  font-size: 1.08rem;
+  font-weight: 650;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.wnl-event-modal .wnl-date-field__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.wnl-event-modal .wnl-date-field__spinners {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 24px;
+  border-left: 1px solid var(--background-modifier-border);
+  background: transparent;
+}
+.wnl-event-modal .wnl-date-field__spin {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  width: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.wnl-event-modal .wnl-date-field__spin + .wnl-event-modal .wnl-date-field__spin {
+  border-top: 1px solid var(--background-modifier-border);
+}
+.wnl-event-modal .wnl-date-field__spin .svg-icon {
+  width: 13px;
+  height: 13px;
+}
+.wnl-event-modal .wnl-date-field__spin:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.wnl-event-modal .wnl-date-field__spin:active {
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+  color: var(--interactive-accent);
+}
+.wnl-event-modal .wnl-date-field__unit {
+  flex: 0 0 auto;
+  min-width: 1em;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  user-select: none;
+}
+.wnl-event-modal .wnl-date-field__unit.is-empty {
+  visibility: hidden;
 }
 .wnl-event-modal__drawer-actions {
   flex: 0 0 auto;
@@ -676,10 +860,17 @@ th.wnl-weekend-sun {
 }
 .wnl-event-modal__row-main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
   min-width: 0;
+}
+.wnl-event-modal__row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 .wnl-event-modal__row-title {
   display: flex;
@@ -687,7 +878,6 @@ th.wnl-weekend-sun {
   flex-wrap: wrap;
   gap: 8px 10px;
   min-width: 0;
-  flex: 1 1 auto;
 }
 .wnl-event-modal__row-name {
   font-weight: 600;
@@ -700,11 +890,19 @@ th.wnl-weekend-sun {
   color: var(--text-muted);
   white-space: nowrap;
 }
+.wnl-event-modal__row-note {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
 .wnl-event-modal__row-actions {
   display: flex;
   align-items: center;
   gap: 4px;
   flex: 0 0 auto;
+  padding-top: 1px;
 }
 .wnl-event-modal__row-del {
   color: var(--text-error);
@@ -747,9 +945,20 @@ th.wnl-weekend-sun {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
-.wnl-event-modal__icon-btn.is-danger:hover {
+.wnl-event-modal__icon-btn.is-danger:hover:not(:disabled) {
   background: color-mix(in srgb, var(--text-error) 14%, transparent);
   color: var(--text-error);
+}
+.wnl-event-modal__icon-btn:disabled,
+.wnl-event-modal__icon-btn.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  color: var(--text-faint);
+}
+.wnl-event-modal__icon-btn:disabled:hover,
+.wnl-event-modal__icon-btn.is-disabled:hover {
+  background: transparent;
+  color: var(--text-faint);
 }
 /* 遮罩层内水平 + 垂直居中 */
 .wnl-day-detail-container {

@@ -19,17 +19,13 @@ function validCategoryIds(): Set<string> {
 	return new Set(eventCategories.map((c) => c.id));
 }
 
-/** 将缺失的内置节假日写入事件列表（跳过已删除） */
-export function ensureBuiltinEvents(
-	events: CustomEvent[],
-	removedIds: string[] = removedBuiltinIds,
-): CustomEvent[] {
-	const removed = new Set(removedIds);
+/** 将缺失的内置节假日写入事件列表 */
+export function ensureBuiltinEvents(events: CustomEvent[]): CustomEvent[] {
 	const existing = new Set(events.map((e) => e.id));
 	const next = [...events];
 	for (const f of listBuiltInFestivals()) {
 		const id = builtinEventId(f);
-		if (removed.has(id) || existing.has(id)) continue;
+		if (existing.has(id)) continue;
 		next.push({
 			id,
 			name: f.name,
@@ -61,10 +57,9 @@ export function getRemovedBuiltinIds(): string[] {
 }
 
 export function setCustomEvents(events: CustomEvent[]): void {
-	customEvents = ensureBuiltinEvents(
-		normalizeCustomEvents(events, eventCategories),
-		removedBuiltinIds,
-	);
+	// 忽略历史 removedBuiltinIds，始终补全内置节日
+	removedBuiltinIds = [];
+	customEvents = ensureBuiltinEvents(normalizeCustomEvents(events, eventCategories));
 }
 
 export function getCustomEvents(): CustomEvent[] {
@@ -88,8 +83,8 @@ export function upsertCustomEvent(event: CustomEvent): CustomEvent[] {
 
 export function removeCustomEvent(id: string): CustomEvent[] {
 	const existing = customEvents.find((e) => e.id === id);
-	if (existing?.builtin && !removedBuiltinIds.includes(id)) {
-		removedBuiltinIds = [...removedBuiltinIds, id];
+	if (!existing || existing.builtin) {
+		return getCustomEvents();
 	}
 	customEvents = customEvents.filter((e) => e.id !== id);
 	return getCustomEvents();

@@ -28,6 +28,8 @@ export interface CustomEvent {
 	day: number;
 	/** 是否在日历中显示 */
 	visible: boolean;
+	/** 备注（可选） */
+	note?: string;
 	/** 由内置节假日种子生成 */
 	builtin?: boolean;
 }
@@ -134,6 +136,7 @@ export function normalizeCustomEvent(
 		month: raw.month,
 		day: raw.day,
 		visible: raw.visible !== false,
+		note: typeof raw.note === 'string' ? raw.note.trim() : '',
 		builtin: builtin || undefined,
 	};
 }
@@ -168,6 +171,7 @@ export function normalizeCustomEvents(
 					month: e.month,
 					day: e.day,
 					visible: e.visible,
+					note: e.note,
 					builtin: e.builtin,
 				},
 				validIds,
