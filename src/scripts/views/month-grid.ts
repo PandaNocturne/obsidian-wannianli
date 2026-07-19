@@ -51,11 +51,11 @@ export function renderMonthGrid(
 	const thead = table.createEl('thead');
 	const headRow = thead.createEl('tr');
 	if (showWeekNumbers) {
-		headRow.createEl('th', {
+		const weekTh = headRow.createEl('th', {
 			cls: 'wnl-weeknum',
-			text: '周',
 			attr: { title: '周次' },
 		});
+		weekTh.createSpan({ cls: 'wnl-weeknum__label', text: '周' });
 	}
 	for (let i = 0; i < WEEKDAY_HEADERS.length; i++) {
 		const th = headRow.createEl('th', { text: WEEKDAY_HEADERS[i]! });
