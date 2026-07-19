@@ -26,7 +26,7 @@ export function renderZodiacView(
 	const { focusYear, onYearClick } = options;
 	const nowYear = new Date().getFullYear();
 	const layout: ZodiacLayout =
-		container.dataset[LAYOUT_KEY] === 'card' ? 'card' : 'table';
+		container.dataset[LAYOUT_KEY] === 'table' ? 'table' : 'card';
 
 	const filterRaw = container.dataset[FILTER_KEY];
 	const filterZhi =
@@ -53,8 +53,8 @@ export function renderZodiacView(
 		attr: { role: 'group', 'aria-label': '展示方式' },
 	});
 	for (const item of [
-		{ id: 'table' as const, label: '表格' },
 		{ id: 'card' as const, label: '卡片' },
+		{ id: 'table' as const, label: '表格' },
 	]) {
 		const btn = layoutSwitch.createEl('button', {
 			cls: 'wnl-zodiac-layout__btn' + (layout === item.id ? ' is-active' : ''),
