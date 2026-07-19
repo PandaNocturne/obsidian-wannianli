@@ -1,6 +1,6 @@
 import { setIcon } from 'obsidian';
 import { YEAR_MAX, YEAR_MIN } from '../constants';
-import { ShiChen } from '../data/terms';
+import { Animals, ShiChen, Zhi } from '../data/terms';
 import {
 	eventAgeYears,
 	eventShiChen,
@@ -208,54 +208,53 @@ export function formatHourPillar(event: CustomEvent): string | null {
 	return `${bazi.hour}时`;
 }
 
-/** 天干地支（及可选时柱）文案 */
-export function formatEventGanzhiLine(
-	event: CustomEvent,
-	showShichen = true,
-): string | null {
+/** 天干地支文案（有时刻则含时柱） */
+export function formatEventGanzhiLine(event: CustomEvent): string | null {
 	const bazi = computeEventBazi(event);
-	if (!bazi) {
-		if (!showShichen) return null;
-		return formatHourPillar(event);
-	}
+	if (!bazi) return null;
 
 	let text = `${bazi.year}年 ${bazi.month}月 ${bazi.day}日`;
-	if (showShichen && bazi.hour) {
-		text += ` ${bazi.hour}时`;
-	}
+	if (bazi.hour) text += ` ${bazi.hour}时`;
 	return text;
 }
 
-export interface GanzhiDisplayOptions {
-	showGanzhi: boolean;
-	showShichen: boolean;
+/** 生肖（按八字年支；无八字时回退开始年） */
+export function formatEventZodiac(event: CustomEvent): string | null {
+	const bazi = computeEventBazi(event);
+	if (bazi?.year) {
+		const idx = Zhi.indexOf(bazi.year.charAt(1));
+		if (idx >= 0) return Animals[idx] ?? null;
+	}
+	if (event.startYear !== undefined) {
+		return Animals[((event.startYear - 4) % 12 + 12) % 12] ?? null;
+	}
+	return null;
 }
 
-/** 事件条目附加行：彩色八字（设置开启时） */
-export function renderEventGanzhiLine(
+/** 事件条目：生肖与八字同一行（按事件自身开关） */
+export function renderEventAstroLines(
 	parent: HTMLElement,
 	event: CustomEvent,
-	options: GanzhiDisplayOptions,
 ): void {
-	if (!options.showGanzhi) return;
+	const showZodiac = event.showZodiac === true;
+	const showBazi = event.showBazi === true;
+	if (!showZodiac && !showBazi) return;
 
-	const bazi = computeEventBazi(event);
-	if (!bazi) {
-		if (!options.showShichen) return;
-		const hourText = formatHourPillar(event);
-		if (!hourText) return;
-		const el = parent.createDiv({ cls: 'wnl-event-modal__row-ganzhi' });
-		el.createSpan({ cls: 'wnl-bazi wnl-bazi--hour', text: hourText });
-		return;
+	const zodiac = showZodiac ? formatEventZodiac(event) : null;
+	const bazi = showBazi ? computeEventBazi(event) : null;
+	if (!zodiac && !bazi) return;
+
+	const el = parent.createDiv({ cls: 'wnl-event-modal__row-astro' });
+	if (zodiac) {
+		el.createSpan({ cls: 'wnl-bazi wnl-bazi--zodiac', text: `${zodiac}年` });
 	}
-
-	const el = parent.createDiv({ cls: 'wnl-event-modal__row-ganzhi' });
-	el.createSpan({ cls: 'wnl-bazi wnl-bazi--year', text: `${bazi.year}年` });
-	el.createSpan({ cls: 'wnl-bazi wnl-bazi--month', text: `${bazi.month}月` });
-	el.createSpan({ cls: 'wnl-bazi wnl-bazi--day', text: `${bazi.day}日` });
-
-	if (options.showShichen && bazi.hour) {
-		el.createSpan({ cls: 'wnl-bazi wnl-bazi--hour', text: `${bazi.hour}时` });
+	if (bazi) {
+		el.createSpan({ cls: 'wnl-bazi wnl-bazi--year', text: `${bazi.year}年` });
+		el.createSpan({ cls: 'wnl-bazi wnl-bazi--month', text: `${bazi.month}月` });
+		el.createSpan({ cls: 'wnl-bazi wnl-bazi--day', text: `${bazi.day}日` });
+		if (bazi.hour) {
+			el.createSpan({ cls: 'wnl-bazi wnl-bazi--hour', text: `${bazi.hour}时` });
+		}
 	}
 }
 

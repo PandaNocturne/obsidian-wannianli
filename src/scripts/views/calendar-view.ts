@@ -83,8 +83,6 @@ export class WannianliView extends ItemView {
 				colorfulTheme: s.colorfulTheme,
 				monthWidth: s.monthWidth,
 				gridGap: s.gridGap,
-				showEventGanzhi: s.showEventGanzhi,
-				showEventShichen: s.showEventShichen,
 			},
 			onDayClick: (info) => this.openDayDetail(info),
 		});

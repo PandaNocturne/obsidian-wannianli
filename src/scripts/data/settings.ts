@@ -40,6 +40,10 @@ export interface CustomEvent {
 	hour?: number;
 	/** 时刻：分 0–59；配合 hour，默认 0 */
 	minute?: number;
+	/** 列表是否显示生肖（默认否） */
+	showZodiac?: boolean;
+	/** 列表是否显示八字（默认否） */
+	showBazi?: boolean;
 	/** 由内置节假日种子生成 */
 	builtin?: boolean;
 }
@@ -69,10 +73,6 @@ export interface WannianliSettings {
 	monthWidth: number;
 	/** 月卡片网格间距（px） */
 	gridGap: number;
-	/** 事件列表是否显示八字（天干地支） */
-	showEventGanzhi: boolean;
-	/** 八字行是否显示时柱（需已填写时间） */
-	showEventShichen: boolean;
 	/** 国务院法定节假日 / 调休本地缓存 */
 	holidayCache: HolidayCache;
 }
@@ -115,8 +115,6 @@ export const DEFAULT_SETTINGS: WannianliSettings = {
 	colorfulTheme: true,
 	monthWidth: MONTH_WIDTH_DEFAULT,
 	gridGap: GRID_GAP_DEFAULT,
-	showEventGanzhi: false,
-	showEventShichen: false,
 	holidayCache: { ...DEFAULT_HOLIDAY_CACHE, years: {} },
 };
 
@@ -134,7 +132,7 @@ export function normalizeDisplaySettings(
 	raw: Partial<WannianliSettings> | null | undefined,
 ): Pick<
 	WannianliSettings,
-	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap' | 'showEventGanzhi' | 'showEventShichen'
+	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap'
 > {
 	return {
 		showWeekNumbers: raw?.showWeekNumbers === true,
@@ -145,8 +143,6 @@ export function normalizeDisplaySettings(
 		gridGap: clampGridGap(
 			typeof raw?.gridGap === 'number' ? raw.gridGap : GRID_GAP_DEFAULT,
 		),
-		showEventGanzhi: raw?.showEventGanzhi === true,
-		showEventShichen: raw?.showEventShichen === true,
 	};
 }
 
@@ -355,6 +351,8 @@ export function normalizeCustomEvent(
 		note: typeof raw.note === 'string' ? raw.note.trim() : '',
 		...years,
 		...(hour !== undefined ? { hour, minute: minute ?? 0 } : {}),
+		...(raw.showZodiac === true ? { showZodiac: true } : {}),
+		...(raw.showBazi === true ? { showBazi: true } : {}),
 		builtin: builtin || undefined,
 	};
 }
@@ -397,6 +395,8 @@ export function normalizeCustomEvents(
 					endYear: e.endYear,
 					hour: e.hour,
 					minute: e.minute,
+					showZodiac: e.showZodiac,
+					showBazi: e.showBazi,
 					shiChen: e.shiChen,
 					builtin: e.builtin,
 				},

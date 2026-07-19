@@ -1065,7 +1065,7 @@ th.wnl-weekend-sun {
   word-break: break-word;
   white-space: pre-wrap;
 }
-.wnl-event-modal__row-ganzhi {
+.wnl-event-modal__row-astro {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1201,6 +1201,11 @@ th.wnl-weekend-sun {
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   border: 1px solid transparent;
+}
+.wnl-bazi--zodiac {
+  color: #be123c;
+  background: color-mix(in srgb, #f43f5e 14%, var(--background-primary));
+  border-color: color-mix(in srgb, #f43f5e 30%, transparent);
 }
 .wnl-bazi--year {
   color: #b45309;

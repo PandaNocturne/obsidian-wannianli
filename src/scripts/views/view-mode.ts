@@ -21,8 +21,6 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 		colorfulTheme: true,
 		monthWidth: MONTH_WIDTH_DEFAULT,
 		gridGap: 10,
-		showEventGanzhi: false,
-		showEventShichen: false,
 	};
 
 	const board = container.createDiv({ cls: 'wnl-board wnl-board--year' });

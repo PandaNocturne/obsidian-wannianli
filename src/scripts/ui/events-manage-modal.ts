@@ -22,7 +22,7 @@ import {
 import { renderCategoryTabs } from './category-tabs';
 import {
 	isValidMonthDay,
-	renderEventGanzhiLine,
+	renderEventAstroLines,
 	renderEventMetaTags,
 	renderMonthDayPicker,
 	renderTimeField,
@@ -55,6 +55,8 @@ export class EventsManageModal extends Modal {
 	private draftEndYear = '';
 	private draftHour = '';
 	private draftMinute = '';
+	private draftShowZodiac = false;
+	private draftShowBazi = false;
 	private editName = '';
 	private editCategoryId = BIRTHDAY_CATEGORY_ID;
 	private editKind: EventKind = 'solar';
@@ -66,6 +68,8 @@ export class EventsManageModal extends Modal {
 	private editEndYear = '';
 	private editHour = '';
 	private editMinute = '';
+	private editShowZodiac = false;
+	private editShowBazi = false;
 
 	constructor(
 		private plugin: WannianliPlugin,
@@ -177,6 +181,8 @@ export class EventsManageModal extends Modal {
 			this.draftEndYear = '';
 			this.draftHour = '';
 			this.draftMinute = '';
+			this.draftShowZodiac = false;
+			this.draftShowBazi = false;
 			this.showAddForm = true;
 			this.render();
 		});
@@ -269,6 +275,26 @@ export class EventsManageModal extends Modal {
 				});
 			});
 
+		new Setting(form)
+			.setName('显示生肖')
+			.setDesc('在事件列表中展示生肖，默认关闭')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draftShowZodiac);
+				toggle.onChange((v) => {
+					this.draftShowZodiac = v;
+				});
+			});
+
+		new Setting(form)
+			.setName('显示八字')
+			.setDesc('在事件列表中展示生辰八字，默认关闭')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draftShowBazi);
+				toggle.onChange((v) => {
+					this.draftShowBazi = v;
+				});
+			});
+
 		const actions = sheet.createDiv({ cls: 'wnl-event-modal__drawer-actions' });
 		new Setting(actions)
 			.addButton((btn) => {
@@ -309,6 +335,8 @@ export class EventsManageModal extends Modal {
 		const time = timeInputsFromEvent(event);
 		this.editHour = time.hour;
 		this.editMinute = time.minute;
+		this.editShowZodiac = event.showZodiac === true;
+		this.editShowBazi = event.showBazi === true;
 		this.render();
 	}
 
@@ -416,6 +444,26 @@ export class EventsManageModal extends Modal {
 				});
 			});
 
+		new Setting(form)
+			.setName('显示生肖')
+			.setDesc('在事件列表中展示生肖，默认关闭')
+			.addToggle((toggle) => {
+				toggle.setValue(this.editShowZodiac);
+				toggle.onChange((v) => {
+					this.editShowZodiac = v;
+				});
+			});
+
+		new Setting(form)
+			.setName('显示八字')
+			.setDesc('在事件列表中展示生辰八字，默认关闭')
+			.addToggle((toggle) => {
+				toggle.setValue(this.editShowBazi);
+				toggle.onChange((v) => {
+					this.editShowBazi = v;
+				});
+			});
+
 		const actions = sheet.createDiv({ cls: 'wnl-event-modal__drawer-actions' });
 		new Setting(actions)
 			.addButton((btn) => {
@@ -451,10 +499,7 @@ export class EventsManageModal extends Modal {
 		title.createSpan({ cls: 'wnl-event-modal__row-name', text: event.name });
 		renderEventMetaTags(title, event);
 
-		renderEventGanzhiLine(body, event, {
-			showGanzhi: this.plugin.settings.showEventGanzhi,
-			showShichen: this.plugin.settings.showEventShichen,
-		});
+		renderEventAstroLines(body, event);
 
 		const note = (event.note ?? '').trim();
 		if (note) {
@@ -597,6 +642,8 @@ export class EventsManageModal extends Modal {
 				endYear: years.endYear,
 				hour: time.hour,
 				minute: time.minute,
+				showZodiac: this.draftShowZodiac ? true : undefined,
+				showBazi: this.draftShowBazi ? true : undefined,
 			}),
 		);
 
@@ -607,6 +654,8 @@ export class EventsManageModal extends Modal {
 		this.draftHour = '';
 		this.draftMinute = '';
 		this.draftVisible = true;
+		this.draftShowZodiac = false;
+		this.draftShowBazi = false;
 		this.showAddForm = false;
 		this.changed = true;
 		new Notice('已添加事件');
@@ -643,6 +692,8 @@ export class EventsManageModal extends Modal {
 				endYear: years.endYear,
 				hour: time.hour,
 				minute: time.minute,
+				showZodiac: this.editShowZodiac ? true : undefined,
+				showBazi: this.editShowBazi ? true : undefined,
 			}),
 		);
 
