@@ -134,13 +134,7 @@ function renderTableLayout(
 	}
 
 	const tbody = table.createEl('tbody');
-	let lastDayunStart: number | null = null;
 	for (const row of rows) {
-		const dayun = dayunOfYear(row.year);
-		if (dayun.startYear !== lastDayunStart) {
-			appendDayunSeparatorRow(tbody, dayun);
-			lastDayunStart = dayun.startYear;
-		}
 		appendZodiacRow(tbody, row, {
 			isToday: row.year === opts.nowYear,
 			isFocus: row.year === opts.focusYear,
@@ -223,15 +217,6 @@ function scrollToHighlight(root: HTMLElement): void {
 		const target =
 			root.querySelector('.is-today') ?? root.querySelector('.is-focus');
 		target?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-	});
-}
-
-function appendDayunSeparatorRow(tbody: HTMLElement, dayun: DayunInfo): void {
-	const tr = tbody.createEl('tr', { cls: 'wnl-zodiac-dayun' });
-	tr.createEl('td', {
-		cls: 'wnl-zodiac-dayun__cell',
-		attr: { colspan: '6' },
-		text: dayun.label,
 	});
 }
 
