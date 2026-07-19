@@ -65,8 +65,14 @@ export interface DayCell {
 /** 整月数据 */
 export interface MonthData {
 	year: number;
-	/** 0–11 */
+	/** 主题色用：公历 0–11；农历为 lunarMonth-1 */
 	month: number;
+	/** solar=公历月；lunar=农历月 */
+	kind?: 'solar' | 'lunar';
+	/** 农历月 1–12（仅 kind=lunar） */
+	lunarMonth?: number;
+	/** 是否闰月（仅 kind=lunar） */
+	isLeapMonth?: boolean;
 	cells: DayCell[];
 	/** 本月第一天所在格子索引（周一为首） */
 	firstDayIndex: number;

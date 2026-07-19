@@ -7,14 +7,18 @@ export { createCalElement } from './types';
 export {
 	Lunar,
 	cyclical,
+	daysInLunarMonth,
 	lYearDays,
 	leapDays,
 	leapMonth,
+	listLunarYearMonths,
 	lunarMonthDays,
+	lunarToSolar,
 	monthDays,
 	sTerm,
 	solarDays,
 } from './lunar-calc';
+export type { LunarMonthRef } from './lunar-calc';
 
 export {
 	cDay,
@@ -24,7 +28,7 @@ export {
 
 export { calendar, cellLabel, gzHeaderText } from './calendar';
 
-export { buildMonthData } from './month-data';
+export { buildLunarMonthData, buildLunarYearMonths, buildMonthData } from './month-data';
 
 export {
 	buildDayDetail,

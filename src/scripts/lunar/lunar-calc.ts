@@ -128,3 +128,60 @@ export function Lunar(objDate: Date): LunarResult {
 	result.day = offset + 1;
 	return result;
 }
+
+/** 农历年月日 → 公历 Date（本地时区，日界为本地 0 点） */
+export function lunarToSolar(
+	lunarYear: number,
+	lunarMonth: number,
+	lunarDay: number,
+	isLeapMonth = false,
+): Date {
+	let offset = 0;
+	for (let y = 1900; y < lunarYear; y++) {
+		offset += lYearDays(y);
+	}
+
+	const leap = leapMonth(lunarYear);
+	for (let m = 1; m < lunarMonth; m++) {
+		offset += monthDays(lunarYear, m);
+		if (leap > 0 && m === leap) offset += leapDays(lunarYear);
+	}
+
+	if (isLeapMonth) {
+		offset += monthDays(lunarYear, lunarMonth);
+	}
+
+	offset += lunarDay - 1;
+
+	const base = new Date(1900, 0, 31);
+	const result = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+	result.setDate(result.getDate() + offset);
+	return result;
+}
+
+export interface LunarMonthRef {
+	/** 1–12 */
+	month: number;
+	isLeap: boolean;
+}
+
+/** 列出农历年中的月份（含闰月） */
+export function listLunarYearMonths(lunarYear: number): LunarMonthRef[] {
+	const leap = leapMonth(lunarYear);
+	const months: LunarMonthRef[] = [];
+	for (let m = 1; m <= 12; m++) {
+		months.push({ month: m, isLeap: false });
+		if (leap === m) months.push({ month: m, isLeap: true });
+	}
+	return months;
+}
+
+/** 农历某月天数 */
+export function daysInLunarMonth(
+	lunarYear: number,
+	lunarMonth: number,
+	isLeapMonth = false,
+): number {
+	if (isLeapMonth) return leapDays(lunarYear);
+	return monthDays(lunarYear, lunarMonth);
+}

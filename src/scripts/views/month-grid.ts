@@ -18,6 +18,7 @@ export function renderMonthGrid(
 	options: MonthGridOptions = {},
 ): void {
 	const { compact = false, showGz = true, calendarMode = 'solar', onDayClick } = options;
+	const isLunarMonth = data.kind === 'lunar' || calendarMode === 'lunar';
 
 	const monthNum = data.month + 1;
 	const wrap = container.createDiv({
@@ -29,7 +30,7 @@ export function renderMonthGrid(
 	const header = wrap.createDiv({ cls: 'wnl-month__header' });
 	header.createEl('div', {
 		cls: 'wnl-month__title',
-		text: `${data.year} 年 ${data.month + 1} 月`,
+		text: monthTitle(data),
 	});
 	if (showGz && !compact) {
 		header.createEl('div', { cls: 'wnl-month__gz', text: data.gzText });
@@ -49,11 +50,24 @@ export function renderMonthGrid(
 		const tr = tbody.createEl('tr');
 		for (let col = 0; col < 7; col++) {
 			const cell = data.cells[row * 7 + col]!;
-			fillDayTd(tr.createEl('td', { cls: 'wnl-day' }), cell, calendarMode, onDayClick);
+			fillDayTd(
+				tr.createEl('td', { cls: 'wnl-day' }),
+				cell,
+				isLunarMonth ? 'lunar' : 'solar',
+				onDayClick,
+			);
 		}
 	}
 
 	attachTooltipHandlers(wrap);
+}
+
+function monthTitle(data: MonthData): string {
+	if (data.kind === 'lunar' && data.lunarMonth) {
+		const leap = data.isLeapMonth ? '闰' : '';
+		return `${data.year} 年 ${leap}${lunarMonthToChinese(data.lunarMonth)}月`;
+	}
+	return `${data.year} 年 ${data.month + 1} 月`;
 }
 
 function fillDayTd(
@@ -114,10 +128,8 @@ function dayCellTexts(
 		info.lunarFestival || info.solarTerms || info.solarFestival || '';
 
 	if (mode === 'lunar') {
-		const primary =
-			info.lDay === 1
-				? `${info.isLeap ? '闰' : ''}${lunarMonthToChinese(info.lMonth)}月`
-				: cDay(info.lDay) || String(info.lDay);
+		// 按农历月排布时，主数字为农历日；初一显示「初一」即可（月名在标题）
+		const primary = cDay(info.lDay) || String(info.lDay);
 		const secondary = festival || `${info.sMonth}/${info.sDay}`;
 		return { primary, secondary };
 	}
