@@ -1,7 +1,7 @@
 {
 	"id": "wannianli",
 	"name": "万年历",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.13.0",
 	"description": "新标签页显示中国万年历：阳历/阴历年视图、节气、生肖与黄道吉日。",
 	"author": "PandaNotes",

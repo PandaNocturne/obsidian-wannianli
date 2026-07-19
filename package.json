@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-wannianli",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Obsidian 万年历插件 — 月/季/年视图，含农历、节气与节日",
 	"main": "main.js",
 	"type": "module",
@@ -10,7 +10,12 @@
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "eslint ."
 	},
-	"keywords": ["obsidian", "calendar", "lunar", "万年历"],
+	"keywords": [
+		"obsidian",
+		"calendar",
+		"lunar",
+		"万年历"
+	],
 	"author": "PandaNotes",
 	"license": "0BSD",
 	"repository": {
