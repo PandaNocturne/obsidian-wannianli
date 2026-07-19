@@ -15,6 +15,7 @@ export type DisplaySettings = Pick<
 	| 'showWeekNumbers'
 	| 'colorfulTheme'
 	| 'showMonthBackground'
+	| 'showMonthShadow'
 	| 'monthWidth'
 	| 'gridGap'
 >;
@@ -33,6 +34,7 @@ export class ViewSettingsModal extends Modal {
 			showWeekNumbers: s.showWeekNumbers,
 			colorfulTheme: s.colorfulTheme,
 			showMonthBackground: s.showMonthBackground,
+			showMonthShadow: s.showMonthShadow,
 			monthWidth: s.monthWidth,
 			gridGap: s.gridGap,
 		};
@@ -79,6 +81,16 @@ export class ViewSettingsModal extends Modal {
 			.addToggle((toggle) => {
 				toggle.setValue(this.draft.showMonthBackground).onChange((value) => {
 					this.draft.showMonthBackground = value;
+					void this.persist();
+				});
+			});
+
+		new Setting(contentEl)
+			.setName('显示阴影')
+			.setDesc('月卡片是否显示轻微阴影')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draft.showMonthShadow).onChange((value) => {
+					this.draft.showMonthShadow = value;
 					void this.persist();
 				});
 			});

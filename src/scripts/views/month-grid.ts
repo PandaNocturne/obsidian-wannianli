@@ -12,6 +12,7 @@ export interface MonthGridOptions {
 	showWeekNumbers?: boolean;
 	colorfulTheme?: boolean;
 	showMonthBackground?: boolean;
+	showMonthShadow?: boolean;
 	onDayClick?: (info: CalElement) => void;
 }
 
@@ -28,6 +29,7 @@ export function renderMonthGrid(
 		showWeekNumbers = false,
 		colorfulTheme = true,
 		showMonthBackground = true,
+		showMonthShadow = true,
 		onDayClick,
 	} = options;
 	const isLunarMonth = data.kind === 'lunar' || calendarMode === 'lunar';
@@ -35,11 +37,13 @@ export function renderMonthGrid(
 	const monthNum = data.month + 1;
 	const themeClass = colorfulTheme ? ` wnl-month--m${monthNum}` : ' wnl-month--plain';
 	const bgClass = showMonthBackground ? ' wnl-month--bg' : '';
+	const shadowClass = showMonthShadow ? ' wnl-month--shadow' : '';
 	const wrap = container.createDiv({
 		cls:
 			(compact ? 'wnl-month wnl-month--compact' : 'wnl-month') +
 			themeClass +
-			bgClass,
+			bgClass +
+			shadowClass,
 	});
 	if (showMonthBackground) {
 		wrap.dataset.monthLabel = monthBackgroundLabel(data);
