@@ -1,4 +1,4 @@
-# Obsidian 万年历
+﻿# Obsidian 万年历
 
 这是一个简单的 Obsidian 万年历插件，可以在 Obsidian 中查看中国万年历：阳历 / 阴历年视图、二十四节气、十二生肖年表，以及黄道吉日与自定义事件。
 
@@ -81,7 +81,7 @@ npm run lint     # 代码检查
 | ------------- | --------------------------------------------------------------------------------------- |
 | 仓库          | [PandaNocturne/obsidian-wannianli](https://github.com/PandaNocturne/obsidian-wannianli) |
 | 插件 ID       | `wannianli`                                                                             |
-| 版本          | 1.0.0                                                                                   |
+| 版本          | 1.0.1                                                                                   |
 | 作者          | [PandaNotes](https://github.com/PandaNocturne)                                          |
 | 最低 Obsidian | 1.13.0                                                                                  |
 | 许可证        | [0BSD](LICENSE)（BSD Zero Clause License）                                              |
