@@ -10,6 +10,7 @@ import {
 import {
 	DEFAULT_SETTINGS,
 	normalizeCustomEvents,
+	normalizeDisplaySettings,
 	normalizeEventCategories,
 	normalizeRemovedBuiltinIds,
 	type WannianliSettings,
@@ -55,6 +56,7 @@ export default class WannianliPlugin extends Plugin {
 		const customEvents = data?.customEvents
 			? normalizeCustomEvents(data.customEvents, eventCategories)
 			: DEFAULT_SETTINGS.customEvents.map((e) => ({ ...e }));
+		const display = normalizeDisplaySettings(data);
 
 		setEventCategories(eventCategories);
 		setRemovedBuiltinIds(removedBuiltinIds);
@@ -63,6 +65,7 @@ export default class WannianliPlugin extends Plugin {
 		this.settings = {
 			...DEFAULT_SETTINGS,
 			...data,
+			...display,
 			eventCategories,
 			customEvents: getCustomEvents(),
 			removedBuiltinIds: getRemovedBuiltinIds(),

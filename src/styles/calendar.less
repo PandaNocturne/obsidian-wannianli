@@ -1,4 +1,4 @@
-.wnl-board-host {
+﻿.wnl-board-host {
 	width: 100%;
 	max-width: none;
 	margin: 0;
@@ -11,22 +11,12 @@
 		display: grid;
 		width: 100%;
 		box-sizing: border-box;
-		/* 拉满宽度；列间距固定 10px（不再 space-between） */
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 10px;
+		grid-template-columns: repeat(
+			auto-fill,
+			minmax(var(--wnl-month-width, 420px), 1fr)
+		);
+		gap: var(--wnl-board-gap, 10px);
 		align-items: stretch;
-
-		@media (max-width: 1100px) {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
-
-		@media (max-width: 800px) {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-
-		@media (max-width: 480px) {
-			grid-template-columns: minmax(0, 1fr);
-		}
 	}
 }
 
@@ -118,6 +108,14 @@
 		background: var(--wnl-weekend-bg);
 	}
 
+	.wnl-grid--weeks {
+		th.wnl-weeknum,
+		td.wnl-weeknum {
+			background: var(--wnl-month-soft, @wnl-header-bg);
+			color: var(--wnl-month-color, var(--text-muted));
+		}
+	}
+
 	.wnl-day--festival .wnl-day__lunar {
 		color: var(--wnl-month-color, @wnl-festival);
 	}
@@ -181,6 +179,11 @@
 		--wnl-month-color: @wnl-m12;
 		--wnl-month-soft: @wnl-m12-soft;
 	}
+
+	&--plain {
+		--wnl-month-color: @wnl-accent;
+		--wnl-month-soft: color-mix(in srgb, @wnl-accent 12%, var(--background-primary));
+	}
 }
 
 .wnl-grid {
@@ -203,8 +206,35 @@
 		}
 	}
 
-	tr:last-child .wnl-day {
+	tr:last-child .wnl-day,
+	tr:last-child .wnl-weeknum {
 		border-bottom: none;
+	}
+
+	&--weeks {
+		th.wnl-weeknum,
+		td.wnl-weeknum {
+			width: 2em;
+			min-width: 2em;
+			max-width: 2em;
+			padding: 6px 0;
+			font-size: 0.68rem;
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+			line-height: 1.2;
+			letter-spacing: 0;
+			color: var(--text-muted);
+			background: var(--wnl-month-soft, @wnl-header-bg);
+			border-right: 1px solid var(--background-modifier-border);
+			border-bottom: 1px solid var(--background-modifier-border);
+			text-align: center;
+			vertical-align: middle;
+			user-select: none;
+		}
+
+		td.wnl-weeknum--empty {
+			color: transparent;
+		}
 	}
 }
 

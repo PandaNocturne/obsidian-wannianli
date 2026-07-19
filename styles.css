@@ -206,25 +206,9 @@
   display: grid;
   width: 100%;
   box-sizing: border-box;
-  /* 拉满宽度；列间距固定 10px（不再 space-between） */
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--wnl-month-width, 420px), 1fr));
+  gap: var(--wnl-board-gap, 10px);
   align-items: stretch;
-}
-@media (max-width: 1100px) {
-  .wnl-board--year {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-@media (max-width: 800px) {
-  .wnl-board--year {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 480px) {
-  .wnl-board--year {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 .wnl-month {
   min-width: 0;
@@ -294,6 +278,11 @@
 .wnl-month .wnl-day.wnl-weekend-sun {
   background: var(--wnl-weekend-bg);
 }
+.wnl-month .wnl-grid--weeks th.wnl-weeknum,
+.wnl-month .wnl-grid--weeks td.wnl-weeknum {
+  background: var(--wnl-month-soft, var(--background-modifier-border));
+  color: var(--wnl-month-color, var(--text-muted));
+}
 .wnl-month .wnl-day--festival .wnl-day__lunar {
   color: var(--wnl-month-color, var(--text-accent));
 }
@@ -345,6 +334,10 @@
   --wnl-month-color: #2c5f8a;
   --wnl-month-soft: rgba(44, 95, 138, 0.1);
 }
+.wnl-month--plain {
+  --wnl-month-color: var(--interactive-accent);
+  --wnl-month-soft: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+}
 .wnl-grid {
   width: 100%;
   border-collapse: separate;
@@ -363,8 +356,31 @@
 .wnl-grid th:last-child {
   border-right: none;
 }
-.wnl-grid tr:last-child .wnl-day {
+.wnl-grid tr:last-child .wnl-day,
+.wnl-grid tr:last-child .wnl-weeknum {
   border-bottom: none;
+}
+.wnl-grid--weeks th.wnl-weeknum,
+.wnl-grid--weeks td.wnl-weeknum {
+  width: 2em;
+  min-width: 2em;
+  max-width: 2em;
+  padding: 6px 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  background: var(--wnl-month-soft, var(--background-modifier-border));
+  border-right: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid var(--background-modifier-border);
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+}
+.wnl-grid--weeks td.wnl-weeknum--empty {
+  color: transparent;
 }
 .wnl-day {
   vertical-align: top;
@@ -1078,7 +1094,7 @@ th.wnl-weekend-sun {
 }
 .wnl-day-detail-modal .modal-content {
   padding: 0;
-  height: min(78vh, 640px);
+  height: auto;
   max-height: min(78vh, 640px);
   overflow: hidden;
   display: flex;
@@ -1100,7 +1116,7 @@ th.wnl-weekend-sun {
   flex-direction: column;
   align-items: stretch;
   text-align: center;
-  height: 100%;
+  height: auto;
   min-height: 0;
   min-width: min(360px, 92vw);
   max-width: 440px;
@@ -1378,4 +1394,15 @@ th.wnl-weekend-sun {
   color: var(--wnl-detail-accent);
   border-color: color-mix(in srgb, var(--wnl-detail-accent) 40%, var(--background-modifier-border));
   background: var(--wnl-detail-soft);
+}
+.wnl-settings-modal {
+  width: min(420px, 94vw) !important;
+  max-width: min(420px, 94vw) !important;
+}
+.wnl-settings .setting-item {
+  border-top: none;
+  padding: 12px 0;
+}
+.wnl-settings .setting-item + .setting-item {
+  border-top: 1px solid var(--background-modifier-border);
 }

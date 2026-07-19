@@ -6,6 +6,7 @@ import { DayDetailModal } from '../ui/day-detail-modal';
 import { EventsManageModal } from '../ui/events-manage-modal';
 import { renderToolbar, type ToolbarState } from '../ui/toolbar';
 import { destroyTooltip } from '../ui/tooltip';
+import { ViewSettingsModal } from '../ui/view-settings-modal';
 import { renderCalendarView } from './view-mode';
 
 export class WannianliView extends ItemView {
@@ -65,11 +66,19 @@ export class WannianliView extends ItemView {
 				this.refresh();
 			},
 			onManageEvents: () => this.openEventsManage(),
+			onOpenSettings: () => this.openSettings(),
 		});
 
+		const s = this.plugin.settings;
 		renderCalendarView(this.boardEl, {
 			year: this.state.year,
 			calendarMode: this.state.calendarMode,
+			display: {
+				showWeekNumbers: s.showWeekNumbers,
+				colorfulTheme: s.colorfulTheme,
+				monthWidth: s.monthWidth,
+				gridGap: s.gridGap,
+			},
 			onDayClick: (info) => this.openDayDetail(info),
 		});
 	}
@@ -90,5 +99,9 @@ export class WannianliView extends ItemView {
 		new EventsManageModal(this.plugin, (result) => {
 			if (result.changed) this.refresh();
 		}).open();
+	}
+
+	private openSettings(): void {
+		new ViewSettingsModal(this.plugin, () => this.refresh()).open();
 	}
 }

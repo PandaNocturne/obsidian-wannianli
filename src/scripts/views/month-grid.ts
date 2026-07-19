@@ -1,13 +1,15 @@
 import type { CalendarMode } from '../ui/toolbar';
 import { WEEKDAY_HEADERS } from '../constants';
 import type { CalElement, DayCell, MonthData } from '../lunar';
-import { cDay, lunarMonthToChinese } from '../lunar';
+import { cDay, getIsoWeek, lunarMonthToChinese } from '../lunar';
 import { attachTooltipHandlers } from '../ui/tooltip';
 
 export interface MonthGridOptions {
 	compact?: boolean;
 	showGz?: boolean;
 	calendarMode?: CalendarMode;
+	showWeekNumbers?: boolean;
+	colorfulTheme?: boolean;
 	onDayClick?: (info: CalElement) => void;
 }
 
@@ -17,14 +19,21 @@ export function renderMonthGrid(
 	data: MonthData,
 	options: MonthGridOptions = {},
 ): void {
-	const { compact = false, showGz = true, calendarMode = 'solar', onDayClick } = options;
+	const {
+		compact = false,
+		showGz = true,
+		calendarMode = 'solar',
+		showWeekNumbers = false,
+		colorfulTheme = true,
+		onDayClick,
+	} = options;
 	const isLunarMonth = data.kind === 'lunar' || calendarMode === 'lunar';
 
 	const monthNum = data.month + 1;
+	const themeClass = colorfulTheme ? ` wnl-month--m${monthNum}` : ' wnl-month--plain';
 	const wrap = container.createDiv({
-		cls: compact
-			? `wnl-month wnl-month--compact wnl-month--m${monthNum}`
-			: `wnl-month wnl-month--m${monthNum}`,
+		cls:
+			(compact ? 'wnl-month wnl-month--compact' : 'wnl-month') + themeClass,
 	});
 
 	const header = wrap.createDiv({ cls: 'wnl-month__header' });
@@ -36,9 +45,18 @@ export function renderMonthGrid(
 		header.createEl('div', { cls: 'wnl-month__gz', text: data.gzText });
 	}
 
-	const table = wrap.createEl('table', { cls: 'wnl-grid' });
+	const table = wrap.createEl('table', {
+		cls: 'wnl-grid' + (showWeekNumbers ? ' wnl-grid--weeks' : ''),
+	});
 	const thead = table.createEl('thead');
 	const headRow = thead.createEl('tr');
+	if (showWeekNumbers) {
+		headRow.createEl('th', {
+			cls: 'wnl-weeknum',
+			text: '周',
+			attr: { title: '周次' },
+		});
+	}
 	for (let i = 0; i < WEEKDAY_HEADERS.length; i++) {
 		const th = headRow.createEl('th', { text: WEEKDAY_HEADERS[i]! });
 		if (i === 5) th.addClass('wnl-weekend-sat');
@@ -48,6 +66,13 @@ export function renderMonthGrid(
 	const tbody = table.createEl('tbody');
 	for (let row = 0; row < 6; row++) {
 		const tr = tbody.createEl('tr');
+		if (showWeekNumbers) {
+			const week = weekNumberForRow(data.cells, row);
+			tr.createEl('td', {
+				cls: 'wnl-weeknum' + (week == null ? ' wnl-weeknum--empty' : ''),
+				text: week == null ? '' : String(week),
+			});
+		}
 		for (let col = 0; col < 7; col++) {
 			const cell = data.cells[row * 7 + col]!;
 			fillDayTd(
@@ -60,6 +85,16 @@ export function renderMonthGrid(
 	}
 
 	attachTooltipHandlers(wrap);
+}
+
+function weekNumberForRow(cells: DayCell[], row: number): number | null {
+	for (let col = 0; col < 7; col++) {
+		const cell = cells[row * 7 + col]!;
+		if (!cell.valid) continue;
+		const { sYear, sMonth, sDay } = cell.info;
+		return getIsoWeek(new Date(sYear, sMonth - 1, sDay));
+	}
+	return null;
 }
 
 function monthTitle(data: MonthData): string {
@@ -128,7 +163,6 @@ function dayCellTexts(
 		info.lunarFestival || info.solarTerms || info.solarFestival || '';
 
 	if (mode === 'lunar') {
-		// 按农历月排布时，主数字为农历日；初一显示「初一」即可（月名在标题）
 		const primary = cDay(info.lDay) || String(info.lDay);
 		const secondary = festival || `${info.sMonth}/${info.sDay}`;
 		return { primary, secondary };

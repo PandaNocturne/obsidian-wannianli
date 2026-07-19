@@ -12,6 +12,7 @@ export interface ToolbarCallbacks {
 	onChange: (state: ToolbarState) => void;
 	onToday: () => void;
 	onManageEvents: () => void;
+	onOpenSettings: () => void;
 }
 
 /** 顶部工具栏：历法切换、年份导航、事件管理 */
@@ -82,6 +83,14 @@ export function renderToolbar(
 	});
 
 	const right = bar.createDiv({ cls: 'wnl-toolbar__right' });
+
+	const settingsBtn = right.createEl('button', {
+		cls: 'wnl-btn wnl-btn--icon',
+		attr: { type: 'button', 'aria-label': '设置', title: '设置' },
+	});
+	setIcon(settingsBtn, 'settings');
+	settingsBtn.addEventListener('click', () => callbacks.onOpenSettings());
+
 	const eventsBtn = right.createEl('button', {
 		cls: 'wnl-btn wnl-btn--ghost',
 		attr: { type: 'button', title: '事件管理' },

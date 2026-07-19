@@ -39,6 +39,14 @@ export interface WannianliSettings {
 	customEvents: CustomEvent[];
 	/** 已删除的内置事件 id，避免再次种子写入 */
 	removedBuiltinIds: string[];
+	/** 月历是否显示周次列 */
+	showWeekNumbers: boolean;
+	/** 是否启用按月彩色主题 */
+	colorfulTheme: boolean;
+	/** 月卡片最小宽度（px），用于自适应列数 */
+	monthWidth: number;
+	/** 月卡片网格间距（px） */
+	gridGap: number;
 }
 
 export const DEFAULT_EVENT_CATEGORIES: EventCategory[] = [
@@ -58,11 +66,51 @@ export const DEFAULT_CUSTOM_EVENTS: CustomEvent[] = [
 	{ id: 'default-ouyang', name: '欧阳xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 7, day: 18, visible: true },
 ];
 
+export const GRID_GAP_MIN = 0;
+export const GRID_GAP_MAX = 32;
+export const GRID_GAP_DEFAULT = 10;
+
+export const MONTH_WIDTH_MIN = 300;
+export const MONTH_WIDTH_MAX = 600;
+export const MONTH_WIDTH_DEFAULT = 420;
+
 export const DEFAULT_SETTINGS: WannianliSettings = {
 	eventCategories: DEFAULT_EVENT_CATEGORIES.map((c) => ({ ...c })),
 	customEvents: DEFAULT_CUSTOM_EVENTS.map((e) => ({ ...e })),
 	removedBuiltinIds: [],
+	showWeekNumbers: false,
+	colorfulTheme: true,
+	monthWidth: MONTH_WIDTH_DEFAULT,
+	gridGap: GRID_GAP_DEFAULT,
 };
+
+export function clampGridGap(value: number): number {
+	if (!Number.isFinite(value)) return GRID_GAP_DEFAULT;
+	return Math.min(GRID_GAP_MAX, Math.max(GRID_GAP_MIN, Math.round(value)));
+}
+
+export function clampMonthWidth(value: number): number {
+	if (!Number.isFinite(value)) return MONTH_WIDTH_DEFAULT;
+	return Math.min(MONTH_WIDTH_MAX, Math.max(MONTH_WIDTH_MIN, Math.round(value)));
+}
+
+export function normalizeDisplaySettings(
+	raw: Partial<WannianliSettings> | null | undefined,
+): Pick<
+	WannianliSettings,
+	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap'
+> {
+	return {
+		showWeekNumbers: raw?.showWeekNumbers === true,
+		colorfulTheme: raw?.colorfulTheme !== false,
+		monthWidth: clampMonthWidth(
+			typeof raw?.monthWidth === 'number' ? raw.monthWidth : MONTH_WIDTH_DEFAULT,
+		),
+		gridGap: clampGridGap(
+			typeof raw?.gridGap === 'number' ? raw.gridGap : GRID_GAP_DEFAULT,
+		),
+	};
+}
 
 export function createEventId(): string {
 	return `evt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
