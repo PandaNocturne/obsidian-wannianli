@@ -1,10 +1,13 @@
+import type { CalendarMode } from '../ui/toolbar';
 import { WEEKDAY_HEADERS } from '../constants';
 import type { CalElement, DayCell, MonthData } from '../lunar';
+import { cDay, lunarMonthToChinese } from '../lunar';
 import { attachTooltipHandlers } from '../ui/tooltip';
 
 export interface MonthGridOptions {
 	compact?: boolean;
 	showGz?: boolean;
+	calendarMode?: CalendarMode;
 	onDayClick?: (info: CalElement) => void;
 }
 
@@ -14,7 +17,7 @@ export function renderMonthGrid(
 	data: MonthData,
 	options: MonthGridOptions = {},
 ): void {
-	const { compact = false, showGz = true, onDayClick } = options;
+	const { compact = false, showGz = true, calendarMode = 'solar', onDayClick } = options;
 
 	const monthNum = data.month + 1;
 	const wrap = container.createDiv({
@@ -46,7 +49,7 @@ export function renderMonthGrid(
 		const tr = tbody.createEl('tr');
 		for (let col = 0; col < 7; col++) {
 			const cell = data.cells[row * 7 + col]!;
-			fillDayTd(tr.createEl('td', { cls: 'wnl-day' }), cell, onDayClick);
+			fillDayTd(tr.createEl('td', { cls: 'wnl-day' }), cell, calendarMode, onDayClick);
 		}
 	}
 
@@ -56,6 +59,7 @@ export function renderMonthGrid(
 function fillDayTd(
 	td: HTMLElement,
 	cell: DayCell,
+	calendarMode: CalendarMode,
 	onDayClick?: (info: CalElement) => void,
 ): void {
 	if (!cell.valid) {
@@ -89,12 +93,37 @@ function fillDayTd(
 		td.addEventListener('click', () => onDayClick(cell.info));
 	}
 
+	const { primary, secondary } = dayCellTexts(cell, calendarMode);
+
 	td.createEl('div', {
 		cls: 'wnl-day__solar',
-		text: String(cell.solarDay),
+		text: primary,
 	});
 	td.createEl('div', {
 		cls: 'wnl-day__lunar',
-		text: cell.label,
+		text: secondary,
 	});
+}
+
+function dayCellTexts(
+	cell: DayCell,
+	mode: CalendarMode,
+): { primary: string; secondary: string } {
+	const info = cell.info;
+	const festival =
+		info.lunarFestival || info.solarTerms || info.solarFestival || '';
+
+	if (mode === 'lunar') {
+		const primary =
+			info.lDay === 1
+				? `${info.isLeap ? '闰' : ''}${lunarMonthToChinese(info.lMonth)}月`
+				: cDay(info.lDay) || String(info.lDay);
+		const secondary = festival || `${info.sMonth}/${info.sDay}`;
+		return { primary, secondary };
+	}
+
+	return {
+		primary: String(cell.solarDay),
+		secondary: cell.label,
+	};
 }

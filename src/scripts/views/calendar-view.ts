@@ -18,7 +18,10 @@ export class WannianliView extends ItemView {
 		private plugin: WannianliPlugin,
 	) {
 		super(leaf);
-		this.state = { year: new Date().getFullYear() };
+		this.state = {
+			year: new Date().getFullYear(),
+			calendarMode: 'solar',
+		};
 	}
 
 	getViewType(): string {
@@ -55,7 +58,10 @@ export class WannianliView extends ItemView {
 				this.refresh();
 			},
 			onToday: () => {
-				this.state = { year: new Date().getFullYear() };
+				this.state = {
+					...this.state,
+					year: new Date().getFullYear(),
+				};
 				this.refresh();
 			},
 			onManageEvents: () => this.openEventsManage(),
@@ -63,6 +69,7 @@ export class WannianliView extends ItemView {
 
 		renderCalendarView(this.boardEl, {
 			year: this.state.year,
+			calendarMode: this.state.calendarMode,
 			onDayClick: (info) => this.openDayDetail(info),
 		});
 	}

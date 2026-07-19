@@ -1,9 +1,11 @@
 import { buildMonthData } from '../lunar';
 import type { CalElement } from '../lunar';
+import type { CalendarMode } from '../ui/toolbar';
 import { renderMonthGrid } from './month-grid';
 
 export interface RenderCalendarOptions {
 	year: number;
+	calendarMode?: CalendarMode;
 	onDayClick?: (info: CalElement) => void;
 }
 
@@ -15,6 +17,7 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 		renderMonthGrid(board, buildMonthData(options.year, m), {
 			compact: true,
 			showGz: false,
+			calendarMode: options.calendarMode ?? 'solar',
 			onDayClick: options.onDayClick,
 		});
 	}
