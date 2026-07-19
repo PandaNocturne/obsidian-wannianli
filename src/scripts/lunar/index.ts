@@ -8,6 +8,7 @@ export {
 	Lunar,
 	cyclical,
 	daysInLunarMonth,
+	hourCyclical,
 	lYearDays,
 	leapDays,
 	leapMonth,
@@ -27,6 +28,16 @@ export {
 } from './format';
 
 export { calendar, cellLabel, gzHeaderText } from './calendar';
+
+export {
+	baziDayPillar,
+	baziMonthPillar,
+	baziMonthZhiIndex,
+	baziYearPillar,
+	clockToShiChen,
+	computeBazi,
+} from './bazi';
+export type { BaziPillars } from './bazi';
 
 export { buildLunarMonthData, buildLunarYearMonths, buildMonthData } from './month-data';
 

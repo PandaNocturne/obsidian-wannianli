@@ -51,6 +51,17 @@ export function cyclical(n: number): string {
 	return Gan[n % 10]! + Zhi[n % 12]!;
 }
 
+/**
+ * 时柱干支：由日干推时干（五鼠遁）+ 时辰地支
+ * @param dayGanIndex 日干索引 0–9（甲=0）
+ * @param shiChen 时辰 0=子 … 11=亥
+ */
+export function hourCyclical(dayGanIndex: number, shiChen: number): string {
+	const start = [0, 2, 4, 6, 8, 0, 2, 4, 6, 8][dayGanIndex % 10]!;
+	const z = ((shiChen % 12) + 12) % 12;
+	return Gan[(start + z) % 10]! + Zhi[z]!;
+}
+
 /** 第 n 个节气在公历该月的日期（UTC） */
 export function sTerm(y: number, n: number): number {
 	const offDate = new Date(

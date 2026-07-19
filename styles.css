@@ -894,6 +894,10 @@ th.wnl-weekend-sun {
   width: 3.6em;
   font-weight: 600;
 }
+.wnl-event-modal .wnl-date-field__input--time {
+  width: 2.4em;
+  font-weight: 600;
+}
 .wnl-event-modal .wnl-date-field__input::placeholder {
   color: var(--text-faint);
   font-weight: 500;
@@ -909,6 +913,27 @@ th.wnl-weekend-sun {
 }
 .wnl-event-modal .wnl-date-field__parts--years {
   gap: 8px;
+}
+.wnl-event-modal .wnl-date-field__select {
+  appearance: none;
+  flex: 0 1 auto;
+  min-width: 11em;
+  max-width: 100%;
+  margin-left: auto;
+  height: 36px;
+  padding: 0 28px 0 10px;
+  border-radius: 9px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-modifier-form-field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
+  color: var(--text-normal);
+  font-size: 0.9rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+.wnl-event-modal .wnl-date-field__select:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 22%, transparent);
 }
 .wnl-event-modal .wnl-date-field__spinners {
   display: flex;
@@ -1040,6 +1065,15 @@ th.wnl-weekend-sun {
   word-break: break-word;
   white-space: pre-wrap;
 }
+.wnl-event-modal__row-ganzhi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+}
 .wnl-event-modal__row-actions {
   display: flex;
   align-items: center;
@@ -1142,6 +1176,13 @@ th.wnl-weekend-sun {
   font-variant-numeric: tabular-nums;
   font-weight: 550;
 }
+.wnl-event-tag--time {
+  color: #6b5b95;
+  background: color-mix(in srgb, #6b5b95 12%, var(--background-primary));
+  border-color: color-mix(in srgb, #6b5b95 28%, transparent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 550;
+}
 .wnl-event-tag--builtin {
   color: var(--interactive-accent);
   background: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
@@ -1151,6 +1192,35 @@ th.wnl-weekend-sun {
   color: var(--text-error);
   background: color-mix(in srgb, var(--text-error) 10%, var(--background-primary));
   border-color: color-mix(in srgb, var(--text-error) 26%, transparent);
+}
+.wnl-bazi {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+}
+.wnl-bazi--year {
+  color: #b45309;
+  background: color-mix(in srgb, #d97706 14%, var(--background-primary));
+  border-color: color-mix(in srgb, #d97706 30%, transparent);
+}
+.wnl-bazi--month {
+  color: #047857;
+  background: color-mix(in srgb, #10b981 14%, var(--background-primary));
+  border-color: color-mix(in srgb, #10b981 30%, transparent);
+}
+.wnl-bazi--day {
+  color: #1d4ed8;
+  background: color-mix(in srgb, #3b82f6 14%, var(--background-primary));
+  border-color: color-mix(in srgb, #3b82f6 30%, transparent);
+}
+.wnl-bazi--hour {
+  color: #7c3aed;
+  background: color-mix(in srgb, #8b5cf6 14%, var(--background-primary));
+  border-color: color-mix(in srgb, #8b5cf6 30%, transparent);
 }
 /* 遮罩层内水平 + 垂直居中 */
 .wnl-day-detail-container {

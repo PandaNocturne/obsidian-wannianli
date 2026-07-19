@@ -12,7 +12,12 @@ import {
 
 export type DisplaySettings = Pick<
 	WannianliSettings,
-	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap'
+	| 'showWeekNumbers'
+	| 'colorfulTheme'
+	| 'monthWidth'
+	| 'gridGap'
+	| 'showEventGanzhi'
+	| 'showEventShichen'
 >;
 
 /** 视图显示设置弹窗 */
@@ -30,6 +35,8 @@ export class ViewSettingsModal extends Modal {
 			colorfulTheme: s.colorfulTheme,
 			monthWidth: s.monthWidth,
 			gridGap: s.gridGap,
+			showEventGanzhi: s.showEventGanzhi,
+			showEventShichen: s.showEventShichen,
 		};
 	}
 
@@ -64,6 +71,26 @@ export class ViewSettingsModal extends Modal {
 			.addToggle((toggle) => {
 				toggle.setValue(this.draft.colorfulTheme).onChange((value) => {
 					this.draft.colorfulTheme = value;
+					void this.persist();
+				});
+			});
+
+		new Setting(contentEl)
+			.setName('显示八字')
+			.setDesc('在事件列表中单独一行展示年/月/日天干地支')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draft.showEventGanzhi).onChange((value) => {
+					this.draft.showEventGanzhi = value;
+					void this.persist();
+				});
+			});
+
+		new Setting(contentEl)
+			.setName('显示时辰')
+			.setDesc('八字行中显示时柱（需事件已填写时间）')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draft.showEventShichen).onChange((value) => {
+					this.draft.showEventShichen = value;
 					void this.persist();
 				});
 			});

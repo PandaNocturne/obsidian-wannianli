@@ -1,10 +1,16 @@
 import { setIcon } from 'obsidian';
 import { YEAR_MAX, YEAR_MIN } from '../constants';
+import { ShiChen } from '../data/terms';
 import {
+	eventAgeYears,
+	eventShiChen,
 	normalizeYearRange,
+	resolveEventCalcYear,
 	type CustomEvent,
 	type EventKind,
 } from '../data/settings';
+import { computeBazi, lunarMonthDays, lunarToSolar } from '../lunar';
+import type { BaziPillars } from '../lunar';
 
 export function maxDayForKind(kind: EventKind): number {
 	return kind === 'lunar' ? 30 : 31;
@@ -52,12 +58,20 @@ export function formatEventDate(event: Pick<CustomEvent, 'kind' | 'month' | 'day
 	return `${kindLabel} ${dateLabel}`;
 }
 
-/** 事件列表行：历法 / 日期 / 年份范围 / 内置 / 已隐藏 标签 */
+/** 事件列表行：历法 / 日期 / 年份·岁数 / 时间 / 内置 / 已隐藏 */
 export function renderEventMetaTags(
 	parent: HTMLElement,
 	event: Pick<
 		CustomEvent,
-		'kind' | 'month' | 'day' | 'builtin' | 'visible' | 'startYear' | 'endYear'
+		| 'kind'
+		| 'month'
+		| 'day'
+		| 'builtin'
+		| 'visible'
+		| 'startYear'
+		| 'endYear'
+		| 'hour'
+		| 'minute'
 	>,
 ): void {
 	const tags = parent.createDiv({ cls: 'wnl-event-modal__row-tags' });
@@ -78,6 +92,13 @@ export function renderEventMetaTags(
 			text: yearLabel,
 		});
 	}
+	const timeLabel = formatEventTimeLabel(event);
+	if (timeLabel) {
+		tags.createSpan({
+			cls: 'wnl-event-tag wnl-event-tag--time',
+			text: timeLabel,
+		});
+	}
 	if (event.builtin) {
 		tags.createSpan({
 			cls: 'wnl-event-tag wnl-event-tag--builtin',
@@ -92,16 +113,150 @@ export function renderEventMetaTags(
 	}
 }
 
+export function formatEventTimeLabel(
+	event: Pick<CustomEvent, 'hour' | 'minute'>,
+): string | null {
+	if (event.hour === undefined) return null;
+	const h = String(event.hour).padStart(2, '0');
+	const m = String(event.minute ?? 0).padStart(2, '0');
+	const shiChen = eventShiChen(event);
+	const shiLabel = shiChen !== undefined ? ShiChen[shiChen] : null;
+	return shiLabel ? `${h}:${m} · ${shiLabel}` : `${h}:${m}`;
+}
+
+/** 年份标签：含自动岁数（算到今年，不超过结束年） */
 export function formatYearRangeLabel(
 	event: Pick<CustomEvent, 'startYear' | 'endYear'>,
 ): string | null {
 	const { startYear, endYear } = event;
-	if (startYear === undefined && endYear === undefined) return null;
+	const age = eventAgeYears(event);
+	const agePart = age !== null ? `${age}岁` : null;
+
+	let range: string | null = null;
 	if (startYear !== undefined && endYear !== undefined) {
-		return startYear === endYear ? `${startYear}年` : `${startYear}–${endYear}`;
+		range = startYear === endYear ? `${startYear}年` : `${startYear}–${endYear}`;
+	} else if (startYear !== undefined) {
+		range = `${startYear}年`;
+	} else if (endYear !== undefined) {
+		range = `至${endYear}年`;
 	}
-	if (startYear !== undefined) return `${startYear}年起`;
-	return `至${endYear}年`;
+
+	if (range && agePart) return `${range} · ${agePart}`;
+	if (agePart) return agePart;
+	return range;
+}
+
+/**
+ * 解析事件对应公历日（用于八字）。
+ * 推算年优先用开始年份；未设置则用今年（可夹到结束年）。
+ */
+export function resolveEventSolarDate(
+	event: Pick<
+		CustomEvent,
+		'kind' | 'month' | 'day' | 'startYear' | 'endYear'
+	>,
+	nowYear = new Date().getFullYear(),
+): Date | null {
+	const year = resolveEventCalcYear(event, nowYear);
+
+	try {
+		if (event.kind === 'solar') {
+			if (event.day < 1 || event.month < 1 || event.month > 12) return null;
+			return new Date(year, event.month - 1, event.day);
+		}
+
+		const lMonth = event.day === 0 ? 12 : event.month;
+		if (lMonth < 1 || lMonth > 12) return null;
+
+		for (const ly of [year - 1, year, year + 1]) {
+			if (ly < YEAR_MIN || ly > YEAR_MAX) continue;
+			const maxDay = lunarMonthDays(ly, lMonth);
+			const lDay = event.day === 0 ? maxDay : Math.min(event.day, maxDay);
+			if (lDay < 1) continue;
+			const d = lunarToSolar(ly, lMonth, lDay, false);
+			if (d.getFullYear() === year) return d;
+		}
+
+		const maxDay = lunarMonthDays(year, lMonth);
+		const lDay = event.day === 0 ? maxDay : Math.min(event.day, maxDay);
+		return lunarToSolar(year, lMonth, lDay, false);
+	} catch {
+		return null;
+	}
+}
+
+/** 由事件推算生辰八字（立春换年、节气换月） */
+export function computeEventBazi(event: CustomEvent): BaziPillars | null {
+	const solar = resolveEventSolarDate(event);
+	if (!solar) return null;
+	return computeBazi(
+		solar.getFullYear(),
+		solar.getMonth() + 1,
+		solar.getDate(),
+		event.hour,
+		event.minute ?? 0,
+	);
+}
+
+/** 时柱干支文案 */
+export function formatHourPillar(event: CustomEvent): string | null {
+	const bazi = computeEventBazi(event);
+	if (!bazi?.hour) {
+		const shiChen = eventShiChen(event);
+		return shiChen !== undefined ? (ShiChen[shiChen] ?? null) : null;
+	}
+	return `${bazi.hour}时`;
+}
+
+/** 天干地支（及可选时柱）文案 */
+export function formatEventGanzhiLine(
+	event: CustomEvent,
+	showShichen = true,
+): string | null {
+	const bazi = computeEventBazi(event);
+	if (!bazi) {
+		if (!showShichen) return null;
+		return formatHourPillar(event);
+	}
+
+	let text = `${bazi.year}年 ${bazi.month}月 ${bazi.day}日`;
+	if (showShichen && bazi.hour) {
+		text += ` ${bazi.hour}时`;
+	}
+	return text;
+}
+
+export interface GanzhiDisplayOptions {
+	showGanzhi: boolean;
+	showShichen: boolean;
+}
+
+/** 事件条目附加行：彩色八字（设置开启时） */
+export function renderEventGanzhiLine(
+	parent: HTMLElement,
+	event: CustomEvent,
+	options: GanzhiDisplayOptions,
+): void {
+	if (!options.showGanzhi) return;
+
+	const bazi = computeEventBazi(event);
+	if (!bazi) {
+		if (!options.showShichen) return;
+		const hourText = formatHourPillar(event);
+		if (!hourText) return;
+		const el = parent.createDiv({ cls: 'wnl-event-modal__row-ganzhi' });
+		el.createSpan({ cls: 'wnl-bazi wnl-bazi--hour', text: hourText });
+		return;
+	}
+
+	const el = parent.createDiv({ cls: 'wnl-event-modal__row-ganzhi' });
+	el.createSpan({ cls: 'wnl-bazi wnl-bazi--year', text: `${bazi.year}年` });
+	el.createSpan({ cls: 'wnl-bazi wnl-bazi--month', text: `${bazi.month}月` });
+	el.createSpan({ cls: 'wnl-bazi wnl-bazi--day', text: `${bazi.day}日` });
+
+	if (options.showShichen && bazi.hour) {
+		el.createSpan({ cls: 'wnl-bazi wnl-bazi--hour', text: `${bazi.hour}时` });
+	}
 }
 
 export interface YearRangeFieldOptions {
@@ -185,6 +340,73 @@ function createYearInput(
 	});
 
 	return input;
+}
+
+export interface TimeFieldOptions {
+	getHour: () => string;
+	getMinute: () => string;
+	onHourChange: (value: string) => void;
+	onMinuteChange: (value: string) => void;
+}
+
+/** 时间一栏：24 小时制时:分，留空=未知 */
+export function renderTimeField(parent: HTMLElement, opts: TimeFieldOptions): void {
+	const wrap = parent.createDiv({ cls: 'wnl-date-field' });
+	const row = wrap.createDiv({ cls: 'wnl-date-field__row' });
+	row.createDiv({ cls: 'wnl-date-field__label', text: '时间' });
+
+	const parts = row.createDiv({ cls: 'wnl-date-field__parts wnl-date-field__parts--years' });
+
+	const hourInput = createYearInput(parts, {
+		ariaLabel: '时',
+		placeholder: '时',
+		value: opts.getHour(),
+		onChange: opts.onHourChange,
+	});
+	hourInput.classList.add('wnl-date-field__input--time');
+	hourInput.title = '0–23，留空未知';
+
+	parts.createSpan({ cls: 'wnl-date-field__sep', text: ':' });
+
+	const minuteInput = createYearInput(parts, {
+		ariaLabel: '分',
+		placeholder: '分',
+		value: opts.getMinute(),
+		onChange: opts.onMinuteChange,
+	});
+	minuteInput.classList.add('wnl-date-field__input--time');
+	minuteInput.title = '0–59';
+
+	hourInput.value = opts.getHour();
+	minuteInput.value = opts.getMinute();
+}
+
+export function timeFromInputs(
+	hourRaw: string,
+	minuteRaw: string,
+): { hour?: number; minute?: number } {
+	const h = hourRaw.trim();
+	const m = minuteRaw.trim();
+	if (!h && !m) return {};
+	const hour = Number.parseInt(h, 10);
+	if (!Number.isFinite(hour) || hour < 0 || hour > 23) return {};
+	let minute = 0;
+	if (m) {
+		const parsed = Number.parseInt(m, 10);
+		if (!Number.isFinite(parsed) || parsed < 0 || parsed > 59) return { hour, minute: 0 };
+		minute = parsed;
+	}
+	return { hour, minute };
+}
+
+export function timeInputsFromEvent(
+	event: Pick<CustomEvent, 'hour' | 'minute'>,
+): { hour: string; minute: string } {
+	if (event.hour === undefined) return { hour: '', minute: '' };
+	return {
+		hour: String(event.hour),
+		minute: String(event.minute ?? 0),
+	};
 }
 
 /** 从表单字符串解析起止年 */

@@ -26,9 +26,13 @@ import { lunarMonthDays } from '../lunar/lunar-calc';
 import { renderCategoryTabs } from './category-tabs';
 import {
 	isValidMonthDay,
+	renderEventGanzhiLine,
 	renderEventMetaTags,
 	renderMonthDayPicker,
+	renderTimeField,
 	renderYearRangeFields,
+	timeFromInputs,
+	timeInputsFromEvent,
 	yearInputsFromEvent,
 	yearsFromInputs,
 } from './event-date';
@@ -53,6 +57,8 @@ export class DayEventModal extends Modal {
 	private draftNote = '';
 	private draftStartYear = '';
 	private draftEndYear = '';
+	private draftHour = '';
+	private draftMinute = '';
 	private editName = '';
 	private editCategoryId = BIRTHDAY_CATEGORY_ID;
 	private editKind: EventKind = 'solar';
@@ -62,6 +68,8 @@ export class DayEventModal extends Modal {
 	private editNote = '';
 	private editStartYear = '';
 	private editEndYear = '';
+	private editHour = '';
+	private editMinute = '';
 
 	constructor(
 		private plugin: WannianliPlugin,
@@ -201,6 +209,8 @@ export class DayEventModal extends Modal {
 			this.draftVisible = true;
 			this.draftStartYear = '';
 			this.draftEndYear = '';
+			this.draftHour = '';
+			this.draftMinute = '';
 			this.showAddForm = true;
 			this.render();
 		});
@@ -269,6 +279,17 @@ export class DayEventModal extends Modal {
 			},
 		});
 
+		renderTimeField(form, {
+			getHour: () => this.draftHour,
+			getMinute: () => this.draftMinute,
+			onHourChange: (v) => {
+				this.draftHour = v;
+			},
+			onMinuteChange: (v) => {
+				this.draftMinute = v;
+			},
+		});
+
 		new Setting(form)
 			.setName('备注')
 			.setClass('wnl-setting-block')
@@ -326,6 +347,9 @@ export class DayEventModal extends Modal {
 		const years = yearInputsFromEvent(event);
 		this.editStartYear = years.startYear;
 		this.editEndYear = years.endYear;
+		const time = timeInputsFromEvent(event);
+		this.editHour = time.hour;
+		this.editMinute = time.minute;
 		this.render();
 	}
 
@@ -401,6 +425,17 @@ export class DayEventModal extends Modal {
 			},
 		});
 
+		renderTimeField(form, {
+			getHour: () => this.editHour,
+			getMinute: () => this.editMinute,
+			onHourChange: (v) => {
+				this.editHour = v;
+			},
+			onMinuteChange: (v) => {
+				this.editMinute = v;
+			},
+		});
+
 		new Setting(form)
 			.setName('备注')
 			.setClass('wnl-setting-block')
@@ -456,6 +491,11 @@ export class DayEventModal extends Modal {
 			const title = body.createDiv({ cls: 'wnl-event-modal__row-title' });
 			title.createSpan({ cls: 'wnl-event-modal__row-name', text: event.name });
 			renderEventMetaTags(title, event);
+
+			renderEventGanzhiLine(body, event, {
+				showGanzhi: this.plugin.settings.showEventGanzhi,
+				showShichen: this.plugin.settings.showEventShichen,
+			});
 
 			const note = (event.note ?? '').trim();
 			if (note) {
@@ -594,6 +634,7 @@ export class DayEventModal extends Modal {
 		}
 
 		const years = yearsFromInputs(this.draftStartYear, this.draftEndYear);
+		const time = timeFromInputs(this.draftHour, this.draftMinute);
 		await this.persist(
 			upsertCustomEvent({
 				id: createEventId(),
@@ -606,6 +647,8 @@ export class DayEventModal extends Modal {
 				note: this.draftNote.trim(),
 				startYear: years.startYear,
 				endYear: years.endYear,
+				hour: time.hour,
+				minute: time.minute,
 			}),
 		);
 
@@ -613,6 +656,8 @@ export class DayEventModal extends Modal {
 		this.draftNote = '';
 		this.draftStartYear = '';
 		this.draftEndYear = '';
+		this.draftHour = '';
+		this.draftMinute = '';
 		this.draftVisible = true;
 		this.showAddForm = false;
 		this.changed = true;
@@ -635,6 +680,7 @@ export class DayEventModal extends Modal {
 		}
 
 		const years = yearsFromInputs(this.editStartYear, this.editEndYear);
+		const time = timeFromInputs(this.editHour, this.editMinute);
 		await this.persist(
 			upsertCustomEvent({
 				...event,
@@ -647,6 +693,8 @@ export class DayEventModal extends Modal {
 				note: this.editNote.trim(),
 				startYear: years.startYear,
 				endYear: years.endYear,
+				hour: time.hour,
+				minute: time.minute,
 			}),
 		);
 

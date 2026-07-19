@@ -36,6 +36,10 @@ export interface CustomEvent {
 	startYear?: number;
 	/** 生效结束公历年（可选，空=无限制） */
 	endYear?: number;
+	/** 时刻：时 0–23；空=未知 */
+	hour?: number;
+	/** 时刻：分 0–59；配合 hour，默认 0 */
+	minute?: number;
 	/** 由内置节假日种子生成 */
 	builtin?: boolean;
 }
@@ -65,6 +69,10 @@ export interface WannianliSettings {
 	monthWidth: number;
 	/** 月卡片网格间距（px） */
 	gridGap: number;
+	/** 事件列表是否显示八字（天干地支） */
+	showEventGanzhi: boolean;
+	/** 八字行是否显示时柱（需已填写时间） */
+	showEventShichen: boolean;
 	/** 国务院法定节假日 / 调休本地缓存 */
 	holidayCache: HolidayCache;
 }
@@ -107,6 +115,8 @@ export const DEFAULT_SETTINGS: WannianliSettings = {
 	colorfulTheme: true,
 	monthWidth: MONTH_WIDTH_DEFAULT,
 	gridGap: GRID_GAP_DEFAULT,
+	showEventGanzhi: false,
+	showEventShichen: false,
 	holidayCache: { ...DEFAULT_HOLIDAY_CACHE, years: {} },
 };
 
@@ -124,7 +134,7 @@ export function normalizeDisplaySettings(
 	raw: Partial<WannianliSettings> | null | undefined,
 ): Pick<
 	WannianliSettings,
-	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap'
+	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap' | 'showEventGanzhi' | 'showEventShichen'
 > {
 	return {
 		showWeekNumbers: raw?.showWeekNumbers === true,
@@ -135,6 +145,8 @@ export function normalizeDisplaySettings(
 		gridGap: clampGridGap(
 			typeof raw?.gridGap === 'number' ? raw.gridGap : GRID_GAP_DEFAULT,
 		),
+		showEventGanzhi: raw?.showEventGanzhi === true,
+		showEventShichen: raw?.showEventShichen === true,
 	};
 }
 
@@ -182,6 +194,78 @@ export function eventMatchesYear(
 	if (event.startYear !== undefined && year < event.startYear) return false;
 	if (event.endYear !== undefined && year > event.endYear) return false;
 	return true;
+}
+
+/**
+ * 事件干支推算用公历年：优先用开始年份（起年）；
+ * 未设置开始年时用今年，并夹到结束年。
+ */
+export function resolveEventCalcYear(
+	event: Pick<CustomEvent, 'startYear' | 'endYear'>,
+	baseYear: number = new Date().getFullYear(),
+): number {
+	let year = event.startYear ?? baseYear;
+	if (event.startYear === undefined && event.endYear !== undefined && year > event.endYear) {
+		year = event.endYear;
+	}
+	if (year < YEAR_MIN) year = YEAR_MIN;
+	if (year > YEAR_MAX) year = YEAR_MAX;
+	return year;
+}
+
+/**
+ * 事件已过年份：从 startYear 算到今年；
+ * 若今年超过 endYear，则只算到 endYear。无 startYear 返回 null。
+ */
+export function eventAgeYears(
+	event: Pick<CustomEvent, 'startYear' | 'endYear'>,
+	nowYear = new Date().getFullYear(),
+): number | null {
+	if (event.startYear === undefined) return null;
+	const toYear = Math.min(nowYear, event.endYear ?? nowYear);
+	return Math.max(0, toYear - event.startYear);
+}
+
+/** 时辰 0–11；非法/空返回 undefined（未知）——兼容旧数据迁移 */
+export function normalizeOptionalShiChen(raw: unknown): number | undefined {
+	if (raw === null || raw === undefined || raw === '') return undefined;
+	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
+	if (!Number.isFinite(n)) return undefined;
+	const v = Math.round(n);
+	if (v < 0 || v > 11) return undefined;
+	return v;
+}
+
+export function normalizeOptionalHour(raw: unknown): number | undefined {
+	if (raw === null || raw === undefined || raw === '') return undefined;
+	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
+	if (!Number.isFinite(n)) return undefined;
+	const v = Math.round(n);
+	if (v < 0 || v > 23) return undefined;
+	return v;
+}
+
+export function normalizeOptionalMinute(raw: unknown): number | undefined {
+	if (raw === null || raw === undefined || raw === '') return undefined;
+	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
+	if (!Number.isFinite(n)) return undefined;
+	const v = Math.round(n);
+	if (v < 0 || v > 59) return undefined;
+	return v;
+}
+
+/** 钟点 → 时辰索引（子=0…亥=11）；子时含 23:00–00:59 */
+export function hourToShiChen(hour: number, minute = 0): number {
+	const total = (((hour * 60 + minute + 60) % 1440) + 1440) % 1440;
+	return Math.floor(total / 120) % 12;
+}
+
+/** 从事件取时辰；无时间返回 undefined */
+export function eventShiChen(
+	event: Pick<CustomEvent, 'hour' | 'minute'>,
+): number | undefined {
+	if (event.hour === undefined) return undefined;
+	return hourToShiChen(event.hour, event.minute ?? 0);
 }
 
 /** 兼容旧 visibility / 缺省 categoryId */
@@ -240,12 +324,26 @@ export function normalizeCustomEvent(
 		month: number;
 		day: number;
 		visibility?: string;
+		/** @deprecated 旧版时辰字段，迁移为 hour/minute */
+		shiChen?: number;
 	},
 	validCategoryIds: Set<string>,
 ): CustomEvent {
 	const builtin =
 		Boolean(raw.builtin) || raw.id.startsWith('builtin-');
 	const years = normalizeYearRange(raw.startYear, raw.endYear);
+	let hour = normalizeOptionalHour(raw.hour);
+	let minute = normalizeOptionalMinute(raw.minute);
+	// 兼容旧版 shiChen 字段
+	if (hour === undefined) {
+		const legacy = normalizeOptionalShiChen(raw.shiChen);
+		if (legacy !== undefined) {
+			hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22][legacy];
+			minute = 0;
+		}
+	}
+	if (hour !== undefined && minute === undefined) minute = 0;
+
 	return {
 		id: raw.id,
 		name: raw.name,
@@ -256,6 +354,7 @@ export function normalizeCustomEvent(
 		visible: raw.visible !== false,
 		note: typeof raw.note === 'string' ? raw.note.trim() : '',
 		...years,
+		...(hour !== undefined ? { hour, minute: minute ?? 0 } : {}),
 		builtin: builtin || undefined,
 	};
 }
@@ -269,7 +368,10 @@ export function normalizeCustomEvents(
 	const result: CustomEvent[] = [];
 	for (const item of events) {
 		if (!item || typeof item !== 'object') continue;
-		const e = item as Partial<CustomEvent> & { visibility?: string };
+		const e = item as Partial<CustomEvent> & {
+			visibility?: string;
+			shiChen?: number;
+		};
 		if (
 			typeof e.id !== 'string' ||
 			typeof e.name !== 'string' ||
@@ -293,6 +395,9 @@ export function normalizeCustomEvents(
 					note: e.note,
 					startYear: e.startYear,
 					endYear: e.endYear,
+					hour: e.hour,
+					minute: e.minute,
+					shiChen: e.shiChen,
 					builtin: e.builtin,
 				},
 				validIds,
