@@ -3,7 +3,6 @@ import type WannianliPlugin from '../../main';
 import { VIEW_TYPE_WANNIANLI } from '../constants';
 import type { CalElement } from '../lunar';
 import { DayDetailModal } from '../ui/day-detail-modal';
-import { ClockDisplay } from '../ui/clock';
 import { EventsManageModal } from '../ui/events-manage-modal';
 import { renderToolbar, type ToolbarState } from '../ui/toolbar';
 import { destroyTooltip } from '../ui/tooltip';
@@ -11,9 +10,7 @@ import { renderCalendarView } from './view-mode';
 
 export class WannianliView extends ItemView {
 	private state: ToolbarState;
-	private clock = new ClockDisplay();
 	private toolbarEl!: HTMLElement;
-	private clockEl!: HTMLElement;
 	private boardEl!: HTMLElement;
 
 	constructor(
@@ -41,16 +38,13 @@ export class WannianliView extends ItemView {
 		root.empty();
 		root.addClass('wnl-root');
 
-		this.clockEl = root.createDiv({ cls: 'wnl-clock-host' });
 		this.toolbarEl = root.createDiv({ cls: 'wnl-toolbar-host' });
 		this.boardEl = root.createDiv({ cls: 'wnl-board-host' });
 
-		this.clock.mount(this.clockEl);
 		this.refresh();
 	}
 
 	async onClose(): Promise<void> {
-		this.clock.destroy();
 		destroyTooltip();
 	}
 

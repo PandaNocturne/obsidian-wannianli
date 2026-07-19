@@ -92,10 +92,6 @@ export class EventsManageModal extends Modal {
 		}
 
 		const toolbar = contentEl.createDiv({ cls: 'wnl-event-modal__toolbar' });
-		toolbar.createDiv({
-			cls: 'wnl-event-modal__summary',
-			text: '「默认」为内置节假日（可编辑/显隐）。右键标签可改名/删除；栏尾 + 新建标签；底部添加工具栏添加事件',
-		});
 		renderCategoryTabs(toolbar, {
 			categories,
 			activeId: this.activeTab,

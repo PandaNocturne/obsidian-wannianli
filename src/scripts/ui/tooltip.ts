@@ -1,6 +1,8 @@
 import { cDay, lunarMonthToChinese } from '../lunar';
 
 const WEEK_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
+const OFFSET = 12;
+const EDGE_PAD = 8;
 
 let tooltipEl: HTMLElement | null = null;
 let bound = false;
@@ -31,6 +33,29 @@ function readDataset(td: HTMLElement) {
 	};
 }
 
+/** 按视口边界自动切换到左/上侧，避免贴边裁切 */
+function positionTooltip(tip: HTMLElement, clientX: number, clientY: number): void {
+	const rect = tip.getBoundingClientRect();
+	const vw = window.innerWidth;
+	const vh = window.innerHeight;
+
+	let left = clientX + OFFSET;
+	let top = clientY + OFFSET;
+
+	if (left + rect.width + EDGE_PAD > vw) {
+		left = clientX - rect.width - OFFSET;
+	}
+	if (top + rect.height + EDGE_PAD > vh) {
+		top = clientY - rect.height - OFFSET;
+	}
+
+	left = Math.max(EDGE_PAD, Math.min(left, vw - rect.width - EDGE_PAD));
+	top = Math.max(EDGE_PAD, Math.min(top, vh - rect.height - EDGE_PAD));
+
+	tip.style.left = `${left}px`;
+	tip.style.top = `${top}px`;
+}
+
 function showTooltip(td: HTMLElement, clientX: number, clientY: number): void {
 	const tip = ensureTooltip();
 	const d = readDataset(td);
@@ -56,9 +81,11 @@ function showTooltip(td: HTMLElement, clientX: number, clientY: number): void {
 		festival +
 		`</div>`;
 
-	tip.style.left = `${clientX + 12}px`;
-	tip.style.top = `${clientY + 16}px`;
+	// 先放到视口内再测量，避免 display:none 时尺寸为 0
+	tip.style.left = '0px';
+	tip.style.top = '0px';
 	tip.show();
+	positionTooltip(tip, clientX, clientY);
 }
 
 function hideTooltip(): void {
@@ -73,12 +100,11 @@ function onOver(evt: MouseEvent): void {
 }
 
 function onMove(evt: MouseEvent): void {
-	if (!tooltipEl) return;
+	if (!tooltipEl || tooltipEl.style.display === 'none') return;
 	const target = evt.target as HTMLElement | null;
 	const td = target?.closest?.('.wnl-day:not(.wnl-day--empty)');
 	if (!td) return;
-	tooltipEl.style.left = `${evt.clientX + 12}px`;
-	tooltipEl.style.top = `${evt.clientY + 16}px`;
+	positionTooltip(tooltipEl, evt.clientX, evt.clientY);
 }
 
 function onOut(evt: MouseEvent): void {

@@ -125,10 +125,6 @@ export class DayEventModal extends Modal {
 		}
 
 		const toolbar = contentEl.createDiv({ cls: 'wnl-event-modal__toolbar' });
-		toolbar.createDiv({
-			cls: 'wnl-event-modal__summary',
-			text: `公历 ${dayInfo.sYear}年${dayInfo.sMonth}月${dayInfo.sDay}日 · 农历${leap}${lMonthCn}月${lDayCn}`,
-		});
 		renderCategoryTabs(toolbar, {
 			categories,
 			activeId: this.activeTab,

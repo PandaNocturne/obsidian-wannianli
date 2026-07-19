@@ -18,8 +18,6 @@ export {
 
 export {
 	cDay,
-	formatClock,
-	formatCurrentDate,
 	lunarMonthToChinese,
 	padZero,
 } from './format';

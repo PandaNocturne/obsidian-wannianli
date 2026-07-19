@@ -57,34 +57,3 @@ export function lunarMonthToChinese(month: number): string {
 export function padZero(num: number): string {
 	return num < 10 ? '0' + num : String(num);
 }
-
-const WEEKDAY_CN = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-
-export function formatCurrentDate(date: Date = new Date()): string {
-	return (
-		' 公元 ' +
-		date.getFullYear() +
-		' 年 ' +
-		(date.getMonth() + 1) +
-		'月 ' +
-		date.getDate() +
-		'日 ' +
-		WEEKDAY_CN[date.getDay()]
-	);
-}
-
-export function formatClock(date: Date = new Date()): string {
-	return (
-		date.getFullYear() +
-		'/' +
-		padZero(date.getMonth() + 1) +
-		'/' +
-		padZero(date.getDate()) +
-		' ' +
-		padZero(date.getHours()) +
-		':' +
-		padZero(date.getMinutes()) +
-		':' +
-		padZero(date.getSeconds())
-	);
-}

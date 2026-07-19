@@ -1,4 +1,4 @@
-﻿.wnl-board-host {
+.wnl-board-host {
 	width: 100%;
 	max-width: none;
 	margin: 0;
@@ -39,8 +39,14 @@
 	border: 1px solid var(--background-modifier-border);
 	border-top: 3px solid var(--wnl-month-color, #000080);
 	border-radius: @wnl-radius;
-	overflow: hidden;
+	overflow: clip;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	/* 周末底：比 soft 稍深，随当月主题色变化 */
+	--wnl-weekend-bg: color-mix(
+		in srgb,
+		var(--wnl-month-color, #000080) 28%,
+		var(--background-primary)
+	);
 
 	&__header {
 		background: var(--wnl-month-color, #000080);
@@ -92,6 +98,24 @@
 	.wnl-grid th {
 		background: var(--wnl-month-soft, @wnl-header-bg);
 		color: var(--wnl-month-color, var(--text-normal));
+
+		&.wnl-weekend-sat,
+		&.wnl-weekend-sun {
+			background: var(--wnl-weekend-bg);
+		}
+
+		&.wnl-weekend-sat {
+			color: @wnl-sat;
+		}
+
+		&.wnl-weekend-sun {
+			color: @wnl-sun;
+		}
+	}
+
+	.wnl-day.wnl-weekend-sat,
+	.wnl-day.wnl-weekend-sun {
+		background: var(--wnl-weekend-bg);
 	}
 
 	.wnl-day--festival .wnl-day__lunar {
@@ -161,7 +185,8 @@
 
 .wnl-grid {
 	width: 100%;
-	border-collapse: collapse;
+	border-collapse: separate;
+	border-spacing: 0;
 	table-layout: fixed;
 
 	th {
@@ -170,6 +195,16 @@
 		font-size: 0.8rem;
 		font-weight: 600;
 		text-align: center;
+		border-right: 1px solid var(--background-modifier-border);
+		border-bottom: 1px solid var(--background-modifier-border);
+
+		&:last-child {
+			border-right: none;
+		}
+	}
+
+	tr:last-child .wnl-day {
+		border-bottom: none;
 	}
 }
 
@@ -178,9 +213,14 @@
 	text-align: center;
 	padding: 4px 2px;
 	min-height: 52px;
-	border: 1px solid var(--background-modifier-border);
+	border-right: 1px solid var(--background-modifier-border);
+	border-bottom: 1px solid var(--background-modifier-border);
 	cursor: default;
 	transition: background 0.12s ease;
+
+	&:last-child {
+		border-right: none;
+	}
 
 	&:not(.wnl-day--empty):hover {
 		background: @wnl-cell-hover;
@@ -188,7 +228,6 @@
 
 	&--empty {
 		background: transparent;
-		border-color: transparent;
 	}
 
 	&--today {
@@ -223,17 +262,17 @@
 }
 
 .wnl-weekend-sat {
+	color: @wnl-sat;
 
-	.wnl-day__solar,
-	& {
+	.wnl-day__solar {
 		color: @wnl-sat;
 	}
 }
 
 .wnl-weekend-sun {
+	color: @wnl-sun;
 
-	.wnl-day__solar,
-	& {
+	.wnl-day__solar {
 		color: @wnl-sun;
 	}
 }
