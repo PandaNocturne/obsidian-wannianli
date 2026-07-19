@@ -72,16 +72,12 @@
 
 		&.is-now {
 			color: var(--wnl-month-color, @wnl-accent);
-			background: color-mix(
-				in srgb,
-				var(--wnl-month-color, @wnl-accent) 14%,
-				var(--background-primary)
-			);
-			border-color: color-mix(
-				in srgb,
-				var(--wnl-month-color, @wnl-accent) 30%,
-				transparent
-			);
+			background: color-mix(in srgb,
+					var(--wnl-month-color, @wnl-accent) 14%,
+					var(--background-primary));
+			border-color: color-mix(in srgb,
+					var(--wnl-month-color, @wnl-accent) 30%,
+					transparent);
 		}
 
 		&.is-future {
@@ -161,13 +157,10 @@
 
 	&.is-current {
 		border-color: color-mix(in srgb, var(--wnl-month-color, @wnl-accent) 60%, transparent);
-		background: color-mix(
-			in srgb,
-			var(--wnl-month-color, @wnl-accent) 12%,
-			var(--background-primary)
-		);
-		box-shadow: inset 0 0 0 1px
-			color-mix(in srgb, var(--wnl-month-color, @wnl-accent) 28%, transparent);
+		background: color-mix(in srgb,
+				var(--wnl-month-color, @wnl-accent) 12%,
+				var(--background-primary));
+		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wnl-month-color, @wnl-accent) 28%, transparent);
 
 		.wnl-term-card__name {
 			color: var(--wnl-month-color, @wnl-accent);
@@ -402,7 +395,7 @@
 		border-color 0.12s ease,
 		transform 0.12s ease;
 
-	&::before {
+	&--bg::before {
 		content: attr(data-animal);
 		position: absolute;
 		inset: 0;
@@ -476,7 +469,7 @@
 		border-color: color-mix(in srgb, @wnl-accent 55%, transparent);
 		background: color-mix(in srgb, @wnl-accent 10%, var(--background-primary));
 
-		&::before {
+		&.wnl-zodiac-year-card--bg::before {
 			color: @wnl-accent;
 			opacity: 0.14;
 		}

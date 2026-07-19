@@ -10,6 +10,8 @@ import {
 export interface ZodiacViewOptions {
 	/** 高亮年份（通常为导航栏当前年） */
 	focusYear: number;
+	/** 卡片是否显示生肖虚色背景 */
+	showZodiacBackground?: boolean;
 	onYearClick?: (year: number) => void;
 }
 
@@ -23,7 +25,7 @@ export function renderZodiacView(
 	container: HTMLElement,
 	options: ZodiacViewOptions,
 ): void {
-	const { focusYear, onYearClick } = options;
+	const { focusYear, onYearClick, showZodiacBackground = true } = options;
 	const nowYear = new Date().getFullYear();
 	const layout: ZodiacLayout =
 		container.dataset[LAYOUT_KEY] === 'table' ? 'table' : 'card';
@@ -105,6 +107,7 @@ export function renderZodiacView(
 		renderCardLayout(board, rows, {
 			nowYear,
 			focusYear,
+			showZodiacBackground,
 			onYearClick,
 		});
 	} else {
@@ -151,6 +154,7 @@ function renderCardLayout(
 	opts: {
 		nowYear: number;
 		focusYear: number;
+		showZodiacBackground: boolean;
 		onYearClick?: (year: number) => void;
 	},
 ): void {
@@ -170,11 +174,14 @@ function renderCardLayout(
 		const card = grid.createDiv({
 			cls:
 				'wnl-zodiac-year-card' +
+				(opts.showZodiacBackground ? ' wnl-zodiac-year-card--bg' : '') +
 				(isToday ? ' is-today' : '') +
 				(isFocus ? ' is-focus' : '') +
 				(opts.onYearClick ? ' is-clickable' : ''),
-			attr: { 'data-animal': row.animal },
 		});
+		if (opts.showZodiacBackground) {
+			card.dataset.animal = row.animal;
+		}
 
 		const head = card.createDiv({ cls: 'wnl-zodiac-year-card__head' });
 		head.createDiv({

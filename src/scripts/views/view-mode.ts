@@ -26,6 +26,7 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 		showMonthBackground: true,
 		showMonthShadow: true,
 		showNowInfo: true,
+		showZodiacBackground: true,
 		monthWidth: MONTH_WIDTH_DEFAULT,
 		gridGap: 10,
 	};
@@ -45,6 +46,7 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 	if (mode === 'zodiac') {
 		renderZodiacView(container, {
 			focusYear: options.year,
+			showZodiacBackground: display.showZodiacBackground,
 			onYearClick: options.onZodiacYearClick,
 		});
 		return;

@@ -17,6 +17,7 @@ export type DisplaySettings = Pick<
 	| 'showMonthBackground'
 	| 'showMonthShadow'
 	| 'showNowInfo'
+	| 'showZodiacBackground'
 	| 'monthWidth'
 	| 'gridGap'
 >;
@@ -37,6 +38,7 @@ export class ViewSettingsModal extends Modal {
 			showMonthBackground: s.showMonthBackground,
 			showMonthShadow: s.showMonthShadow,
 			showNowInfo: s.showNowInfo,
+			showZodiacBackground: s.showZodiacBackground,
 			monthWidth: s.monthWidth,
 			gridGap: s.gridGap,
 		};
@@ -93,6 +95,16 @@ export class ViewSettingsModal extends Modal {
 			.addToggle((toggle) => {
 				toggle.setValue(this.draft.showMonthBackground).onChange((value) => {
 					this.draft.showMonthBackground = value;
+					void this.persist();
+				});
+			});
+
+		new Setting(contentEl)
+			.setName('生肖背景')
+			.setDesc('在生肖卡片中以大号虚色显示生肖，如「马」')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draft.showZodiacBackground).onChange((value) => {
+					this.draft.showZodiacBackground = value;
 					void this.persist();
 				});
 			});

@@ -15,9 +15,12 @@ export interface ToolbarCallbacks {
 	onOpenSettings: () => void;
 }
 
-const MODE_BUTTONS: { mode: CalendarMode; label: string; icon: string }[] = [
+const CALENDAR_MODE_BUTTONS: { mode: CalendarMode; label: string; icon: string }[] = [
 	{ mode: 'solar', label: '阳历', icon: 'sun' },
 	{ mode: 'lunar', label: '阴历', icon: 'moon' },
+];
+
+const SPECIAL_MODE_BUTTONS: { mode: CalendarMode; label: string; icon: string }[] = [
 	{ mode: 'solarTerms', label: '节气', icon: 'cloud-sun' },
 	{ mode: 'zodiac', label: '生肖', icon: 'paw-print' },
 ];
@@ -32,30 +35,7 @@ export function renderToolbar(
 	const bar = container.createDiv({ cls: 'wnl-toolbar' });
 
 	const left = bar.createDiv({ cls: 'wnl-toolbar__left' });
-	const modeSwitch = left.createDiv({
-		cls: 'wnl-toolbar__mode',
-		attr: { role: 'group', 'aria-label': '日历显示模式' },
-	});
-
-	for (const { mode, label, icon } of MODE_BUTTONS) {
-		const btn = modeSwitch.createEl('button', {
-			cls:
-				'wnl-toolbar__mode-btn' +
-				(state.calendarMode === mode ? ' is-active' : ''),
-			attr: {
-				type: 'button',
-				title: label,
-				'aria-label': label,
-				'aria-pressed': String(state.calendarMode === mode),
-			},
-		});
-		setIcon(btn, icon);
-		btn.createSpan({ text: label });
-		btn.addEventListener('click', () => {
-			if (state.calendarMode === mode) return;
-			callbacks.onChange({ ...state, calendarMode: mode });
-		});
-	}
+	appendModeSwitch(left, state, callbacks, CALENDAR_MODE_BUTTONS, '历法显示模式');
 
 	const center = bar.createDiv({ cls: 'wnl-toolbar__center' });
 	// 生肖总表不依赖年份导航，仍保留以便高亮/跳转
@@ -116,6 +96,41 @@ export function renderToolbar(
 	setIcon(todayBtn, 'calendar-check');
 	todayBtn.createSpan({ text: '今日' });
 	todayBtn.addEventListener('click', () => callbacks.onToday());
+
+	appendModeSwitch(right, state, callbacks, SPECIAL_MODE_BUTTONS, '节气与生肖');
+}
+
+function appendModeSwitch(
+	parent: HTMLElement,
+	state: ToolbarState,
+	callbacks: ToolbarCallbacks,
+	buttons: { mode: CalendarMode; label: string; icon: string }[],
+	ariaLabel: string,
+): void {
+	const modeSwitch = parent.createDiv({
+		cls: 'wnl-toolbar__mode',
+		attr: { role: 'group', 'aria-label': ariaLabel },
+	});
+
+	for (const { mode, label, icon } of buttons) {
+		const btn = modeSwitch.createEl('button', {
+			cls:
+				'wnl-toolbar__mode-btn' +
+				(state.calendarMode === mode ? ' is-active' : ''),
+			attr: {
+				type: 'button',
+				title: label,
+				'aria-label': label,
+				'aria-pressed': String(state.calendarMode === mode),
+			},
+		});
+		setIcon(btn, icon);
+		btn.createSpan({ text: label });
+		btn.addEventListener('click', () => {
+			if (state.calendarMode === mode) return;
+			callbacks.onChange({ ...state, calendarMode: mode });
+		});
+	}
 }
 
 function clampYear(y: number): number {
