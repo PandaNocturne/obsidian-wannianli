@@ -1,3 +1,4 @@
+/* 每月主题色：标题栏 / 浅底 */
 /* 去掉 Obsidian 视图默认内边距，左右仅保留 .wnl-root 的 20px */
 .workspace-leaf-content[data-type='wannianli-view'] .view-content {
   padding: 0 !important;
@@ -115,14 +116,15 @@
   width: 100%;
   max-width: none;
   justify-self: stretch;
-  background: var(--background-secondary);
+  background: var(--wnl-month-soft, var(--background-secondary));
   border: 1px solid var(--background-modifier-border);
+  border-top: 3px solid var(--wnl-month-color, #000080);
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .wnl-month__header {
-  background: #000080;
+  background: var(--wnl-month-color, #000080);
   color: #fff;
   padding: 10px 12px;
   text-align: center;
@@ -156,6 +158,61 @@
 }
 .wnl-month--compact .wnl-day__lunar {
   font-size: 0.72rem;
+}
+.wnl-month .wnl-grid th {
+  background: var(--wnl-month-soft, var(--background-modifier-border));
+  color: var(--wnl-month-color, var(--text-normal));
+}
+.wnl-month .wnl-day--festival .wnl-day__lunar {
+  color: var(--wnl-month-color, var(--text-accent));
+}
+.wnl-month--m1 {
+  --wnl-month-color: #3b6ea5;
+  --wnl-month-soft: rgba(59, 110, 165, 0.1);
+}
+.wnl-month--m2 {
+  --wnl-month-color: #8e5a9b;
+  --wnl-month-soft: rgba(142, 90, 155, 0.1);
+}
+.wnl-month--m3 {
+  --wnl-month-color: #3d9b6e;
+  --wnl-month-soft: rgba(61, 155, 110, 0.1);
+}
+.wnl-month--m4 {
+  --wnl-month-color: #d4638a;
+  --wnl-month-soft: rgba(212, 99, 138, 0.1);
+}
+.wnl-month--m5 {
+  --wnl-month-color: #4caf7a;
+  --wnl-month-soft: rgba(76, 175, 122, 0.1);
+}
+.wnl-month--m6 {
+  --wnl-month-color: #c49a2a;
+  --wnl-month-soft: rgba(196, 154, 42, 0.12);
+}
+.wnl-month--m7 {
+  --wnl-month-color: #e06b3a;
+  --wnl-month-soft: rgba(224, 107, 58, 0.1);
+}
+.wnl-month--m8 {
+  --wnl-month-color: #d35400;
+  --wnl-month-soft: rgba(211, 84, 0, 0.1);
+}
+.wnl-month--m9 {
+  --wnl-month-color: #c47b2a;
+  --wnl-month-soft: rgba(196, 123, 42, 0.12);
+}
+.wnl-month--m10 {
+  --wnl-month-color: #c0392b;
+  --wnl-month-soft: rgba(192, 57, 43, 0.1);
+}
+.wnl-month--m11 {
+  --wnl-month-color: #8b6b4a;
+  --wnl-month-soft: rgba(139, 107, 74, 0.12);
+}
+.wnl-month--m12 {
+  --wnl-month-color: #2c5f8a;
+  --wnl-month-soft: rgba(44, 95, 138, 0.1);
 }
 .wnl-grid {
   width: 100%;

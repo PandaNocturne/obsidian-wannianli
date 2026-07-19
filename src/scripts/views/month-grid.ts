@@ -16,8 +16,11 @@ export function renderMonthGrid(
 ): void {
 	const { compact = false, showGz = true, onDayClick } = options;
 
+	const monthNum = data.month + 1;
 	const wrap = container.createDiv({
-		cls: compact ? 'wnl-month wnl-month--compact' : 'wnl-month',
+		cls: compact
+			? `wnl-month wnl-month--compact wnl-month--m${monthNum}`
+			: `wnl-month wnl-month--m${monthNum}`,
 	});
 
 	const header = wrap.createDiv({ cls: 'wnl-month__header' });
