@@ -15,6 +15,7 @@ import {
 	BIRTHDAY_CATEGORY_ID,
 	createCategoryId,
 	createEventId,
+	fallbackCategoryId,
 	userEventCategories,
 	type CustomEvent,
 	type EventCategory,
@@ -96,9 +97,10 @@ export class DayEventModal extends Modal {
 	}
 
 	private ensureActiveTab(): void {
-		const ids = new Set(getEventCategories().map((c) => c.id));
+		const categories = getEventCategories();
+		const ids = new Set(categories.map((c) => c.id));
 		if (!ids.has(this.activeTab)) {
-			this.activeTab = BIRTHDAY_CATEGORY_ID;
+			this.activeTab = fallbackCategoryId(categories);
 			this.showAddForm = false;
 			this.editingEvent = null;
 		}
@@ -165,7 +167,7 @@ export class DayEventModal extends Modal {
 				new ConfirmModal(
 					this.app,
 					'删除标签',
-					`确定删除标签「${cat.name}」？该标签下的事件将迁移到其他标签。`,
+					`确定删除标签「${cat.name}」？该标签下的全部事件将一并删除，此操作不可撤销。`,
 					() => this.deleteCategory(cat.id),
 				).open();
 			},
@@ -293,6 +295,10 @@ export class DayEventModal extends Modal {
 			},
 			onMinuteChange: (v) => {
 				this.draftMinute = v;
+			},
+			onClear: () => {
+				this.draftHour = '';
+				this.draftMinute = '';
 			},
 		});
 
@@ -461,6 +467,10 @@ export class DayEventModal extends Modal {
 			},
 			onMinuteChange: (v) => {
 				this.editMinute = v;
+			},
+			onClear: () => {
+				this.editHour = '';
+				this.editMinute = '';
 			},
 		});
 
@@ -649,11 +659,12 @@ export class DayEventModal extends Modal {
 		this.plugin.settings.customEvents = events;
 		await this.plugin.saveSettings();
 		if (this.activeTab === id) {
-			this.activeTab = BIRTHDAY_CATEGORY_ID;
+			this.activeTab = fallbackCategoryId(this.plugin.settings.eventCategories);
 			this.showAddForm = false;
+			this.editingEvent = null;
 		}
 		this.changed = true;
-		new Notice('已删除标签，事件已迁移');
+		new Notice('已删除标签及其全部事件');
 		this.render();
 	}
 
@@ -730,24 +741,24 @@ export class DayEventModal extends Modal {
 
 		const years = yearsFromInputs(this.editStartYear, this.editEndYear);
 		const time = timeFromInputs(this.editHour, this.editMinute);
-		await this.persist(
-			upsertCustomEvent({
-				...event,
-				name,
-				categoryId: this.editCategoryId,
-				kind: this.editKind,
-				month: this.editMonth,
-				day: this.editDay,
-				visible: this.editVisible,
-				note: this.editNote.trim(),
-				startYear: years.startYear,
-				endYear: years.endYear,
-				hour: time.hour,
-				minute: time.minute,
-				showZodiac: this.editShowZodiac ? true : undefined,
-				showBazi: this.editShowBazi ? true : undefined,
-			}),
-		);
+		const next: CustomEvent = {
+			...event,
+			name,
+			categoryId: this.editCategoryId,
+			kind: this.editKind,
+			month: this.editMonth,
+			day: this.editDay,
+			visible: this.editVisible,
+			note: this.editNote.trim(),
+			showZodiac: this.editShowZodiac ? true : undefined,
+			showBazi: this.editShowBazi ? true : undefined,
+		};
+		delete next.hour;
+		delete next.minute;
+		delete next.startYear;
+		delete next.endYear;
+		Object.assign(next, years, time);
+		await this.persist(upsertCustomEvent(next));
 
 		this.editingEvent = null;
 		this.changed = true;

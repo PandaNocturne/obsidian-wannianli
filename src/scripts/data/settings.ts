@@ -335,7 +335,9 @@ export function normalizeEventCategories(raw: unknown): EventCategory[] {
 	if (!seen.has(BUILTIN_CATEGORY_ID)) {
 		list.unshift({ id: BUILTIN_CATEGORY_ID, name: '内置', locked: true });
 	}
-	if (!seen.has(BIRTHDAY_CATEGORY_ID)) {
+	// 仅在没有任何自定义标签时补默认「生日」，避免删除后被强制加回
+	const hasUserCategory = list.some((c) => c.id !== BUILTIN_CATEGORY_ID);
+	if (!hasUserCategory) {
 		list.push({ id: BIRTHDAY_CATEGORY_ID, name: '生日' });
 	}
 
@@ -478,4 +480,14 @@ export function normalizeHolidayCache(raw: unknown): HolidayCache {
 
 export function userEventCategories(categories: EventCategory[]): EventCategory[] {
 	return categories.filter((c) => c.id !== BUILTIN_CATEGORY_ID);
+}
+
+/** 删除标签后的回退：优先生日，否则首个自定义，再否则内置 */
+export function fallbackCategoryId(categories: EventCategory[]): string {
+	if (categories.some((c) => c.id === BIRTHDAY_CATEGORY_ID)) {
+		return BIRTHDAY_CATEGORY_ID;
+	}
+	const user = userEventCategories(categories)[0];
+	if (user) return user.id;
+	return BUILTIN_CATEGORY_ID;
 }

@@ -2,6 +2,7 @@ import { Plugin, WorkspaceLeaf } from 'obsidian';
 import { VIEW_TYPE_WANNIANLI } from './scripts/constants';
 import {
 	getCustomEvents,
+	getEventCategories,
 	getRemovedBuiltinIds,
 	setCustomEvents,
 	setEventCategories,
@@ -101,6 +102,7 @@ export default class WannianliPlugin extends Plugin {
 		setEventCategories(this.settings.eventCategories);
 		setRemovedBuiltinIds(this.settings.removedBuiltinIds);
 		setCustomEvents(this.settings.customEvents);
+		this.settings.eventCategories = getEventCategories();
 		this.settings.customEvents = getCustomEvents();
 		this.settings.removedBuiltinIds = getRemovedBuiltinIds();
 		await this.saveData(this.settings);

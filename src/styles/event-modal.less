@@ -458,6 +458,34 @@
 		user-select: none;
 	}
 
+	.wnl-date-field__clear {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		margin: 0;
+		padding: 0;
+		border: none;
+		border-radius: 6px;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		opacity: 0.7;
+
+		&:hover {
+			opacity: 1;
+			color: var(--text-normal);
+			background: var(--background-modifier-hover);
+		}
+
+		svg {
+			width: 14px;
+			height: 14px;
+		}
+	}
+
 	.wnl-date-field__parts--years {
 		gap: 8px;
 	}

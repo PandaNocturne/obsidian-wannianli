@@ -1,6 +1,5 @@
 import { builtinEventId, listBuiltInFestivals } from './festivals';
 import {
-	BIRTHDAY_CATEGORY_ID,
 	BUILTIN_CATEGORY_ID,
 	eventMatchesYear,
 	normalizeCustomEvent,
@@ -130,7 +129,7 @@ export function reorderEventCategories(orderedIds: string[]): EventCategory[] {
 	return getEventCategories();
 }
 
-/** 删除标签页：事件迁移到生日（或首个可用标签） */
+/** 删除标签页：同时删除该标签下全部事件（至少保留一个自定义标签） */
 export function removeEventCategory(id: string): {
 	categories: EventCategory[];
 	events: CustomEvent[];
@@ -145,14 +144,7 @@ export function removeEventCategory(id: string): {
 	}
 
 	eventCategories = eventCategories.filter((c) => c.id !== id);
-	const fallback =
-		eventCategories.find((c) => c.id === BIRTHDAY_CATEGORY_ID)?.id ??
-		eventCategories.find((c) => c.id !== BUILTIN_CATEGORY_ID)?.id ??
-		BIRTHDAY_CATEGORY_ID;
-
-	customEvents = customEvents.map((e) =>
-		e.categoryId === id ? { ...e, categoryId: fallback } : e,
-	);
+	customEvents = customEvents.filter((e) => e.categoryId !== id);
 
 	return { categories: getEventCategories(), events: getCustomEvents() };
 }

@@ -355,6 +355,8 @@ export interface TimeFieldOptions {
 	getMinute: () => string;
 	onHourChange: (value: string) => void;
 	onMinuteChange: (value: string) => void;
+	/** 清空时间（未知） */
+	onClear?: () => void;
 }
 
 /** 时间一栏：24 小时制时:分，留空=未知 */
@@ -387,6 +389,20 @@ export function renderTimeField(parent: HTMLElement, opts: TimeFieldOptions): vo
 
 	hourInput.value = opts.getHour();
 	minuteInput.value = opts.getMinute();
+
+	if (opts.onClear) {
+		const clearBtn = parts.createEl('button', {
+			cls: 'wnl-date-field__clear',
+			attr: { type: 'button', title: '清除时间', 'aria-label': '清除时间' },
+		});
+		setIcon(clearBtn, 'x');
+		clearBtn.addEventListener('click', (evt) => {
+			evt.preventDefault();
+			opts.onClear?.();
+			hourInput.value = '';
+			minuteInput.value = '';
+		});
+	}
 }
 
 export function timeFromInputs(
