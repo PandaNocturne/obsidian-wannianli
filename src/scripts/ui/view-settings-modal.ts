@@ -16,6 +16,7 @@ export type DisplaySettings = Pick<
 	| 'colorfulTheme'
 	| 'showMonthBackground'
 	| 'showMonthShadow'
+	| 'showNowInfo'
 	| 'monthWidth'
 	| 'gridGap'
 >;
@@ -35,6 +36,7 @@ export class ViewSettingsModal extends Modal {
 			colorfulTheme: s.colorfulTheme,
 			showMonthBackground: s.showMonthBackground,
 			showMonthShadow: s.showMonthShadow,
+			showNowInfo: s.showNowInfo,
 			monthWidth: s.monthWidth,
 			gridGap: s.gridGap,
 		};
@@ -54,6 +56,16 @@ export class ViewSettingsModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('wnl-settings');
+
+		new Setting(contentEl)
+			.setName('此刻信息')
+			.setDesc('顶部显示当前公历日期时间与八字干支')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draft.showNowInfo).onChange((value) => {
+					this.draft.showNowInfo = value;
+					void this.persist();
+				});
+			});
 
 		new Setting(contentEl)
 			.setName('显示周次')

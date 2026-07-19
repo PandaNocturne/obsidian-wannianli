@@ -73,6 +73,8 @@ export interface WannianliSettings {
 	showMonthBackground: boolean;
 	/** 月卡片是否显示阴影 */
 	showMonthShadow: boolean;
+	/** 顶部是否显示此刻公历与八字 */
+	showNowInfo: boolean;
 	/** 月卡片最小宽度（px），用于自适应列数 */
 	monthWidth: number;
 	/** 月卡片网格间距（px） */
@@ -119,6 +121,7 @@ export const DEFAULT_SETTINGS: WannianliSettings = {
 	colorfulTheme: true,
 	showMonthBackground: true,
 	showMonthShadow: true,
+	showNowInfo: true,
 	monthWidth: MONTH_WIDTH_DEFAULT,
 	gridGap: GRID_GAP_DEFAULT,
 	holidayCache: { ...DEFAULT_HOLIDAY_CACHE, years: {} },
@@ -142,6 +145,7 @@ export function normalizeDisplaySettings(
 	| 'colorfulTheme'
 	| 'showMonthBackground'
 	| 'showMonthShadow'
+	| 'showNowInfo'
 	| 'monthWidth'
 	| 'gridGap'
 > {
@@ -150,6 +154,7 @@ export function normalizeDisplaySettings(
 		colorfulTheme: raw?.colorfulTheme !== false,
 		showMonthBackground: raw?.showMonthBackground !== false,
 		showMonthShadow: raw?.showMonthShadow !== false,
+		showNowInfo: raw?.showNowInfo !== false,
 		monthWidth: clampMonthWidth(
 			typeof raw?.monthWidth === 'number' ? raw.monthWidth : MONTH_WIDTH_DEFAULT,
 		),

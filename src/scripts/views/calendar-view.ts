@@ -4,6 +4,7 @@ import { VIEW_TYPE_WANNIANLI } from '../constants';
 import type { CalElement } from '../lunar';
 import { DayDetailModal } from '../ui/day-detail-modal';
 import { EventsManageModal } from '../ui/events-manage-modal';
+import { renderNowInfo } from '../ui/now-info';
 import { renderToolbar, type ToolbarState } from '../ui/toolbar';
 import { destroyTooltip } from '../ui/tooltip';
 import { ViewSettingsModal } from '../ui/view-settings-modal';
@@ -11,8 +12,10 @@ import { renderCalendarView } from './view-mode';
 
 export class WannianliView extends ItemView {
 	private state: ToolbarState;
+	private nowInfoEl!: HTMLElement;
 	private toolbarEl!: HTMLElement;
 	private boardEl!: HTMLElement;
+	private nowTimer: number | null = null;
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -42,6 +45,7 @@ export class WannianliView extends ItemView {
 		root.empty();
 		root.addClass('wnl-root');
 
+		this.nowInfoEl = root.createDiv({ cls: 'wnl-now-info-host' });
 		this.toolbarEl = root.createDiv({ cls: 'wnl-toolbar-host' });
 		this.boardEl = root.createDiv({ cls: 'wnl-board-host' });
 
@@ -49,6 +53,7 @@ export class WannianliView extends ItemView {
 	}
 
 	async onClose(): Promise<void> {
+		this.stopNowTimer();
 		destroyTooltip();
 	}
 
@@ -57,7 +62,38 @@ export class WannianliView extends ItemView {
 		this.refresh();
 	}
 
+	private startNowTimer(): void {
+		if (this.nowTimer != null) return;
+		this.nowTimer = window.setInterval(() => this.tickNowInfo(), 1000);
+	}
+
+	private stopNowTimer(): void {
+		if (this.nowTimer != null) {
+			window.clearInterval(this.nowTimer);
+			this.nowTimer = null;
+		}
+	}
+
+	private tickNowInfo(): void {
+		if (!this.plugin.settings.showNowInfo) return;
+		renderNowInfo(this.nowInfoEl);
+	}
+
+	private syncNowInfo(): void {
+		if (this.plugin.settings.showNowInfo) {
+			this.nowInfoEl.show();
+			this.tickNowInfo();
+			this.startNowTimer();
+		} else {
+			this.stopNowTimer();
+			this.nowInfoEl.empty();
+			this.nowInfoEl.hide();
+		}
+	}
+
 	private refresh(): void {
+		this.syncNowInfo();
+
 		renderToolbar(this.toolbarEl, this.state, {
 			onChange: (next) => {
 				this.state = next;
@@ -83,6 +119,7 @@ export class WannianliView extends ItemView {
 				colorfulTheme: s.colorfulTheme,
 				showMonthBackground: s.showMonthBackground,
 				showMonthShadow: s.showMonthShadow,
+				showNowInfo: s.showNowInfo,
 				monthWidth: s.monthWidth,
 				gridGap: s.gridGap,
 			},

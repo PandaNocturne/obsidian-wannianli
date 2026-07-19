@@ -21,6 +21,7 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 		colorfulTheme: true,
 		showMonthBackground: true,
 		showMonthShadow: true,
+		showNowInfo: true,
 		monthWidth: MONTH_WIDTH_DEFAULT,
 		gridGap: 10,
 	};
