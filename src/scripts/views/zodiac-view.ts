@@ -221,7 +221,7 @@ function renderCardLayout(
 }
 
 function scrollToHighlight(root: HTMLElement): void {
-	requestAnimationFrame(() => {
+	window.requestAnimationFrame(() => {
 		const target =
 			root.querySelector('.is-today') ?? root.querySelector('.is-focus');
 		target?.scrollIntoView({ block: 'center', behavior: 'smooth' });

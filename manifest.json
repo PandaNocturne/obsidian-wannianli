@@ -1,8 +1,8 @@
 {
-	"id": "obsidian-wannianli",
+	"id": "wannianli",
 	"name": "万年历",
 	"version": "1.0.0",
-	"minAppVersion": "1.0.0",
+	"minAppVersion": "1.13.0",
 	"description": "新标签页显示年视图万年历（4×3 自适应网格），含农历、节气与节日。",
 	"author": "PandaNotes",
 	"authorUrl": "",

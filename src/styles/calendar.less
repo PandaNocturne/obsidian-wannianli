@@ -11,10 +11,8 @@
 		display: grid;
 		width: 100%;
 		box-sizing: border-box;
-		grid-template-columns: repeat(
-			auto-fill,
-			minmax(var(--wnl-month-width, 420px), 1fr)
-		);
+		grid-template-columns: repeat(auto-fill,
+				minmax(var(--wnl-month-width, 420px), 1fr));
 		gap: var(--wnl-board-gap, 10px);
 		align-items: stretch;
 	}
@@ -33,11 +31,9 @@
 	overflow: clip;
 	box-shadow: none;
 	/* 周末底：比 soft 稍深，随当月主题色变化 */
-	--wnl-weekend-bg: color-mix(
-		in srgb,
-		var(--wnl-month-color, #000080) 28%,
-		var(--background-primary)
-	);
+	--wnl-weekend-bg: color-mix(in srgb,
+			var(--wnl-month-color, #000080) 28%,
+			var(--background-primary));
 
 	&--shadow {
 		box-shadow:
@@ -146,6 +142,7 @@
 	}
 
 	.wnl-grid--weeks {
+
 		th.wnl-weeknum,
 		td.wnl-weeknum {
 			background: var(--wnl-month-soft, @wnl-header-bg);

@@ -96,7 +96,12 @@ export async function fetchHolidayYear(year: number): Promise<HolidayDay[] | nul
 	}
 
 	if (notFound && lastError === null) return null;
-	if (lastError) throw lastError;
+	if (lastError instanceof Error) throw lastError;
+	if (lastError !== null && lastError !== undefined) {
+		throw new Error(
+			typeof lastError === 'string' ? lastError : 'holiday fetch failed',
+		);
+	}
 	return null;
 }
 

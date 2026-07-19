@@ -308,7 +308,7 @@ export class EventsManageModal extends Modal {
 					});
 			});
 
-		requestAnimationFrame(() => {
+		window.requestAnimationFrame(() => {
 			overlay.addClass('is-open');
 			sheet.addClass('is-open');
 		});
@@ -477,7 +477,7 @@ export class EventsManageModal extends Modal {
 					});
 			});
 
-		requestAnimationFrame(() => {
+		window.requestAnimationFrame(() => {
 			overlay.addClass('is-open');
 			sheet.addClass('is-open');
 		});

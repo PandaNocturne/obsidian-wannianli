@@ -71,7 +71,7 @@ export class ViewSettingsModal extends Modal {
 
 		new Setting(contentEl)
 			.setName('显示周次')
-			.setDesc('在月历左侧显示 ISO 周序号')
+			.setDesc('在月历左侧显示 iso 周序号')
 			.addToggle((toggle) => {
 				toggle.setValue(this.draft.showWeekNumbers).onChange((value) => {
 					this.draft.showWeekNumbers = value;
@@ -128,7 +128,6 @@ export class ViewSettingsModal extends Modal {
 				slider
 					.setLimits(MONTH_WIDTH_MIN, MONTH_WIDTH_MAX, 10)
 					.setValue(this.draft.monthWidth)
-					.setDynamicTooltip()
 					.onChange((value) => {
 						this.draft.monthWidth = clampMonthWidth(value);
 						void this.persist();
@@ -142,7 +141,6 @@ export class ViewSettingsModal extends Modal {
 				slider
 					.setLimits(GRID_GAP_MIN, GRID_GAP_MAX, 1)
 					.setValue(this.draft.gridGap)
-					.setDynamicTooltip()
 					.onChange((value) => {
 						this.draft.gridGap = clampGridGap(value);
 						void this.persist();

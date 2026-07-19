@@ -50,12 +50,12 @@ export function renderMonthGrid(
 	}
 
 	const header = wrap.createDiv({ cls: 'wnl-month__header' });
-	header.createEl('div', {
+	header.createDiv({
 		cls: 'wnl-month__title',
 		text: monthTitle(data),
 	});
 	if (showGz && !compact) {
-		header.createEl('div', { cls: 'wnl-month__gz', text: data.gzText });
+		header.createDiv({ cls: 'wnl-month__gz', text: data.gzText });
 	}
 
 	const table = wrap.createEl('table', {
@@ -176,17 +176,17 @@ function fillDayTd(
 
 	const { primary, secondary } = dayCellTexts(cell, calendarMode);
 
-	td.createEl('div', {
+	td.createDiv({
 		cls: 'wnl-day__solar',
 		text: primary,
 	});
-	td.createEl('div', {
+	td.createDiv({
 		cls: 'wnl-day__lunar',
 		text: secondary,
 	});
 
 	if (holiday) {
-		td.createEl('span', {
+		td.createSpan({
 			cls: 'wnl-day__badge',
 			text: holiday.isOffDay ? '休' : '班',
 		});

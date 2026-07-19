@@ -18,17 +18,17 @@ export function renderNowInfo(container: HTMLElement, now = new Date()): void {
 	const shiLabel = ShiChen[shiChen] ?? '';
 	const hourText = bazi.hour ? `${bazi.hour}时` : shiLabel;
 
-	let root = container.querySelector('.wnl-now-info') as HTMLElement | null;
-	if (!root) {
+	let root = container.querySelector('.wnl-now-info');
+	if (!(root instanceof HTMLElement)) {
 		container.empty();
 		root = container.createDiv({ cls: 'wnl-now-info' });
 		root.createDiv({ cls: 'wnl-now-info__solar' });
 		root.createDiv({ cls: 'wnl-now-info__bazi' });
 	}
 
-	const solarEl = root.querySelector('.wnl-now-info__solar') as HTMLElement | null;
-	const baziEl = root.querySelector('.wnl-now-info__bazi') as HTMLElement | null;
-	if (!solarEl || !baziEl) return;
+	const solarEl = root.querySelector('.wnl-now-info__solar');
+	const baziEl = root.querySelector('.wnl-now-info__bazi');
+	if (!(solarEl instanceof HTMLElement) || !(baziEl instanceof HTMLElement)) return;
 
 	solarEl.empty();
 	solarEl.createSpan({ cls: 'wnl-now-info__label', text: '公元' });

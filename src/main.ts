@@ -35,8 +35,8 @@ export default class WannianliPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'open-wannianli',
-			name: '打开万年历',
+			id: 'open',
+			name: '打开',
 			callback: () => {
 				void this.activateView();
 			},
@@ -60,10 +60,6 @@ export default class WannianliPlugin extends Plugin {
 			const view = leaf.view;
 			if (view instanceof WannianliView) view.refreshCalendar();
 		}
-	}
-
-	onunload(): void {
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_WANNIANLI);
 	}
 
 	async loadSettings(): Promise<void> {
@@ -123,6 +119,6 @@ export default class WannianliPlugin extends Plugin {
 			});
 		}
 
-		workspace.revealLeaf(leaf);
+		await workspace.revealLeaf(leaf);
 	}
 }

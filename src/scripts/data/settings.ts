@@ -177,11 +177,21 @@ export function createCategoryId(): string {
 	return `cat-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** 将未知值转为有限数字；非法返回 undefined */
+function toFiniteNumber(raw: unknown): number | undefined {
+	if (raw === null || raw === undefined || raw === '') return undefined;
+	if (typeof raw === 'number') return Number.isFinite(raw) ? raw : undefined;
+	if (typeof raw === 'string') {
+		const n = Number(raw.trim());
+		return Number.isFinite(n) ? n : undefined;
+	}
+	return undefined;
+}
+
 /** 解析可选公历年份；空/非法返回 undefined */
 export function normalizeOptionalYear(raw: unknown): number | undefined {
-	if (raw === null || raw === undefined || raw === '') return undefined;
-	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
-	if (!Number.isFinite(n)) return undefined;
+	const n = toFiniteNumber(raw);
+	if (n === undefined) return undefined;
 	const y = Math.round(n);
 	if (y < YEAR_MIN || y > YEAR_MAX) return undefined;
 	return y;
@@ -247,27 +257,24 @@ export function eventAgeYears(
 
 /** 时辰 0–11；非法/空返回 undefined（未知）——兼容旧数据迁移 */
 export function normalizeOptionalShiChen(raw: unknown): number | undefined {
-	if (raw === null || raw === undefined || raw === '') return undefined;
-	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
-	if (!Number.isFinite(n)) return undefined;
+	const n = toFiniteNumber(raw);
+	if (n === undefined) return undefined;
 	const v = Math.round(n);
 	if (v < 0 || v > 11) return undefined;
 	return v;
 }
 
 export function normalizeOptionalHour(raw: unknown): number | undefined {
-	if (raw === null || raw === undefined || raw === '') return undefined;
-	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
-	if (!Number.isFinite(n)) return undefined;
+	const n = toFiniteNumber(raw);
+	if (n === undefined) return undefined;
 	const v = Math.round(n);
 	if (v < 0 || v > 23) return undefined;
 	return v;
 }
 
 export function normalizeOptionalMinute(raw: unknown): number | undefined {
-	if (raw === null || raw === undefined || raw === '') return undefined;
-	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
-	if (!Number.isFinite(n)) return undefined;
+	const n = toFiniteNumber(raw);
+	if (n === undefined) return undefined;
 	const v = Math.round(n);
 	if (v < 0 || v > 59) return undefined;
 	return v;
@@ -353,9 +360,10 @@ export function normalizeCustomEvent(
 	const years = normalizeYearRange(raw.startYear, raw.endYear);
 	let hour = normalizeOptionalHour(raw.hour);
 	let minute = normalizeOptionalMinute(raw.minute);
-	// 兼容旧版 shiChen 字段
+	// 兼容旧版 shiChen 字段（从原始对象读取，避免触碰已弃用属性声明）
 	if (hour === undefined) {
-		const legacy = normalizeOptionalShiChen(raw.shiChen);
+		const legacyBag = raw as Record<string, unknown>;
+		const legacy = normalizeOptionalShiChen(legacyBag['shiChen']);
 		if (legacy !== undefined) {
 			hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22][legacy];
 			minute = 0;

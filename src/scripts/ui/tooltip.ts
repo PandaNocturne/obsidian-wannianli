@@ -52,8 +52,10 @@ function positionTooltip(tip: HTMLElement, clientX: number, clientY: number): vo
 	left = Math.max(EDGE_PAD, Math.min(left, vw - rect.width - EDGE_PAD));
 	top = Math.max(EDGE_PAD, Math.min(top, vh - rect.height - EDGE_PAD));
 
-	tip.style.left = `${left}px`;
-	tip.style.top = `${top}px`;
+	tip.setCssProps({
+		left: `${left}px`,
+		top: `${top}px`,
+	});
 }
 
 function showTooltip(td: HTMLElement, clientX: number, clientY: number): void {
@@ -64,26 +66,29 @@ function showTooltip(td: HTMLElement, clientX: number, clientY: number): void {
 	const lDayCn = d.lDay ? cDay(d.lDay) : '';
 	const weekText = WEEK_NAMES[d.week] ?? '';
 
-	let festival = '';
-	if (d.solarTerms || d.solarFestival || d.lunarFestival) {
-		festival =
-			`<div class="wnl-tooltip__festival">${[d.solarTerms, d.solarFestival, d.lunarFestival]
-				.filter(Boolean)
-				.join(' ')}</div>`;
+	tip.empty();
+	const body = tip.createDiv({ cls: 'wnl-tooltip__body' });
+	body.createDiv({ text: `${d.sYear} 年 ${d.sMonth} 月 ${d.sDay} 日` });
+	body.createDiv({ text: `星期${weekText}` });
+	body.createDiv({
+		cls: 'wnl-tooltip__lunar',
+		text: `农历${leap}${lMonthCn}月${lDayCn}`,
+	});
+	body.createDiv({
+		cls: 'wnl-tooltip__ganzhi',
+		text: `${d.cYear}年 ${d.cMonth}月 ${d.cDay}日`,
+	});
+
+	const festivalParts = [d.solarTerms, d.solarFestival, d.lunarFestival].filter(Boolean);
+	if (festivalParts.length) {
+		body.createDiv({
+			cls: 'wnl-tooltip__festival',
+			text: festivalParts.join(' '),
+		});
 	}
 
-	tip.innerHTML =
-		`<div class="wnl-tooltip__body">` +
-		`<div>${d.sYear} 年 ${d.sMonth} 月 ${d.sDay} 日</div>` +
-		`<div>星期${weekText}</div>` +
-		`<div class="wnl-tooltip__lunar">农历${leap}${lMonthCn}月${lDayCn}</div>` +
-		`<div class="wnl-tooltip__ganzhi">${d.cYear}年 ${d.cMonth}月 ${d.cDay}日</div>` +
-		festival +
-		`</div>`;
-
 	// 先放到视口内再测量，避免 display:none 时尺寸为 0
-	tip.style.left = '0px';
-	tip.style.top = '0px';
+	tip.setCssProps({ left: '0px', top: '0px' });
 	tip.show();
 	positionTooltip(tip, clientX, clientY);
 }
