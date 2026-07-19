@@ -32,11 +32,49 @@ export function isValidMonthDay(kind: EventKind, month: number, day: number): bo
 	return day <= maxDayForMonth(kind, month);
 }
 
+export function formatEventDateParts(
+	event: Pick<CustomEvent, 'kind' | 'month' | 'day'>,
+): { kindLabel: string; dateLabel: string; kind: EventKind } {
+	const kind = event.kind;
+	const kindLabel = kind === 'solar' ? '阳历' : '阴历';
+	const dateLabel =
+		event.day === 0 ? '十二月 除夕' : `${event.month}月${event.day}日`;
+	return { kindLabel, dateLabel, kind };
+}
+
 export function formatEventDate(event: Pick<CustomEvent, 'kind' | 'month' | 'day'>): string {
-	if (event.day === 0) return '农历十二月 除夕';
-	return event.kind === 'solar'
-		? `阳历 ${event.month}月${event.day}日`
-		: `阴历 ${event.month}月${event.day}日`;
+	const { kindLabel, dateLabel } = formatEventDateParts(event);
+	return `${kindLabel} ${dateLabel}`;
+}
+
+/** 事件列表行：历法 / 日期 / 内置 / 已隐藏 标签 */
+export function renderEventMetaTags(
+	parent: HTMLElement,
+	event: Pick<CustomEvent, 'kind' | 'month' | 'day' | 'builtin' | 'visible'>,
+): void {
+	const tags = parent.createDiv({ cls: 'wnl-event-modal__row-tags' });
+	const { kindLabel, dateLabel, kind } = formatEventDateParts(event);
+
+	tags.createSpan({
+		cls: `wnl-event-tag wnl-event-tag--${kind}`,
+		text: kindLabel,
+	});
+	tags.createSpan({
+		cls: 'wnl-event-tag wnl-event-tag--date',
+		text: dateLabel,
+	});
+	if (event.builtin) {
+		tags.createSpan({
+			cls: 'wnl-event-tag wnl-event-tag--builtin',
+			text: '内置',
+		});
+	}
+	if (!event.visible) {
+		tags.createSpan({
+			cls: 'wnl-event-tag wnl-event-tag--hidden',
+			text: '已隐藏',
+		});
+	}
 }
 
 export interface MonthDayPickerOptions {

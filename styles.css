@@ -874,9 +874,9 @@ th.wnl-weekend-sun {
 }
 .wnl-event-modal__row-title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 8px 10px;
+  gap: 6px 8px;
   min-width: 0;
 }
 .wnl-event-modal__row-name {
@@ -884,11 +884,12 @@ th.wnl-weekend-sun {
   color: var(--text-normal);
   word-break: break-word;
 }
-.wnl-event-modal__row-date {
-  flex: 0 0 auto;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  white-space: nowrap;
+.wnl-event-modal__row-tags {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
 }
 .wnl-event-modal__row-note {
   font-size: 0.82rem;
@@ -959,6 +960,48 @@ th.wnl-weekend-sun {
 .wnl-event-modal__icon-btn.is-disabled:hover {
   background: transparent;
   color: var(--text-faint);
+}
+.wnl-event-tag {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  user-select: none;
+}
+.wnl-event-tag--solar {
+  color: #2f6fed;
+  background: color-mix(in srgb, #2f6fed 12%, var(--background-primary));
+  border-color: color-mix(in srgb, #2f6fed 28%, transparent);
+}
+.wnl-event-tag--lunar {
+  color: #9a5a2a;
+  background: color-mix(in srgb, #c47b2a 14%, var(--background-primary));
+  border-color: color-mix(in srgb, #c47b2a 30%, transparent);
+}
+.wnl-event-tag--date {
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border-color: var(--background-modifier-border);
+  font-variant-numeric: tabular-nums;
+  font-weight: 550;
+}
+.wnl-event-tag--builtin {
+  color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+  border-color: color-mix(in srgb, var(--interactive-accent) 28%, transparent);
+}
+.wnl-event-tag--hidden {
+  color: var(--text-error);
+  background: color-mix(in srgb, var(--text-error) 10%, var(--background-primary));
+  border-color: color-mix(in srgb, var(--text-error) 26%, transparent);
 }
 /* 遮罩层内水平 + 垂直居中 */
 .wnl-day-detail-container {

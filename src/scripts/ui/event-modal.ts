@@ -24,8 +24,8 @@ import type { CalElement } from '../lunar/types';
 import { lunarMonthDays } from '../lunar/lunar-calc';
 import { renderCategoryTabs } from './category-tabs';
 import {
-	formatEventDate,
 	isValidMonthDay,
+	renderEventMetaTags,
 	renderMonthDayPicker,
 } from './event-date';
 import { NamePromptModal } from './name-prompt-modal';
@@ -412,10 +412,7 @@ export class DayEventModal extends Modal {
 			const body = main.createDiv({ cls: 'wnl-event-modal__row-body' });
 			const title = body.createDiv({ cls: 'wnl-event-modal__row-title' });
 			title.createSpan({ cls: 'wnl-event-modal__row-name', text: event.name });
-			const dateText = event.builtin
-				? `${formatEventDate(event)} · 内置${event.visible ? '' : ' · 已隐藏'}`
-				: `${formatEventDate(event)}${event.visible ? '' : ' · 已隐藏'}`;
-			title.createSpan({ cls: 'wnl-event-modal__row-date', text: dateText });
+			renderEventMetaTags(title, event);
 
 			const note = (event.note ?? '').trim();
 			if (note) {

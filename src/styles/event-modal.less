@@ -549,9 +549,9 @@
 
 		&-title {
 			display: flex;
-			align-items: baseline;
+			align-items: center;
 			flex-wrap: wrap;
-			gap: 8px 10px;
+			gap: 6px 8px;
 			min-width: 0;
 		}
 
@@ -561,11 +561,12 @@
 			word-break: break-word;
 		}
 
-		&-date {
-			flex: 0 0 auto;
-			font-size: 0.82rem;
-			color: var(--text-muted);
-			white-space: nowrap;
+		&-tags {
+			display: inline-flex;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 4px;
+			min-width: 0;
 		}
 
 		&-note {
@@ -651,5 +652,53 @@
 				color: var(--text-faint);
 			}
 		}
+	}
+}
+
+.wnl-event-tag {
+	display: inline-flex;
+	align-items: center;
+	flex: 0 0 auto;
+	height: 20px;
+	padding: 0 7px;
+	border-radius: 999px;
+	border: 1px solid transparent;
+	font-size: 0.72rem;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: 0.01em;
+	white-space: nowrap;
+	user-select: none;
+
+	&--solar {
+		color: #2f6fed;
+		background: color-mix(in srgb, #2f6fed 12%, var(--background-primary));
+		border-color: color-mix(in srgb, #2f6fed 28%, transparent);
+	}
+
+	&--lunar {
+		color: #9a5a2a;
+		background: color-mix(in srgb, #c47b2a 14%, var(--background-primary));
+		border-color: color-mix(in srgb, #c47b2a 30%, transparent);
+	}
+
+	&--date {
+		color: var(--text-muted);
+		background: var(--background-secondary);
+		border-color: var(--background-modifier-border);
+		font-variant-numeric: tabular-nums;
+		font-weight: 550;
+	}
+
+	&--builtin {
+		color: @wnl-accent;
+		background: color-mix(in srgb, @wnl-accent 12%, var(--background-primary));
+		border-color: color-mix(in srgb, @wnl-accent 28%, transparent);
+	}
+
+	&--hidden {
+		color: var(--text-error);
+		background: color-mix(in srgb, var(--text-error) 10%, var(--background-primary));
+		border-color: color-mix(in srgb, var(--text-error) 26%, transparent);
 	}
 }
