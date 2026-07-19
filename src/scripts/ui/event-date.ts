@@ -147,8 +147,10 @@ export function formatYearRangeLabel(
 }
 
 /**
- * 解析事件对应公历日（用于八字）。
- * 推算年优先用开始年份；未设置则用今年（可夹到结束年）。
+ * 解析事件对应公历日（用于八字 / 生肖）。
+ * - 阳历：起年（或今年）+ 月日
+ * - 阴历：有起年时按「农历年」换算（腊月等跨公历年更符合「某年生」）；
+ *   无起年时在近三年中取落在目标公历年的那次
  */
 export function resolveEventSolarDate(
 	event: Pick<
@@ -168,18 +170,25 @@ export function resolveEventSolarDate(
 		const lMonth = event.day === 0 ? 12 : event.month;
 		if (lMonth < 1 || lMonth > 12) return null;
 
-		for (const ly of [year - 1, year, year + 1]) {
-			if (ly < YEAR_MIN || ly > YEAR_MAX) continue;
+		const lunarDate = (ly: number): Date | null => {
+			if (ly < YEAR_MIN || ly > YEAR_MAX) return null;
 			const maxDay = lunarMonthDays(ly, lMonth);
 			const lDay = event.day === 0 ? maxDay : Math.min(event.day, maxDay);
-			if (lDay < 1) continue;
-			const d = lunarToSolar(ly, lMonth, lDay, false);
-			if (d.getFullYear() === year) return d;
+			if (lDay < 1) return null;
+			return lunarToSolar(ly, lMonth, lDay, false);
+		};
+
+		// 有起年：起年视为农历年（避免腊月被映射到上一年腊月 → 立春前误成上年生肖）
+		if (event.startYear !== undefined) {
+			return lunarDate(year);
 		}
 
-		const maxDay = lunarMonthDays(year, lMonth);
-		const lDay = event.day === 0 ? maxDay : Math.min(event.day, maxDay);
-		return lunarToSolar(year, lMonth, lDay, false);
+		for (const ly of [year, year - 1, year + 1]) {
+			const d = lunarDate(ly);
+			if (d && d.getFullYear() === year) return d;
+		}
+
+		return lunarDate(year);
 	} catch {
 		return null;
 	}
