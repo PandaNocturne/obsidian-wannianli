@@ -20,17 +20,23 @@ export interface CustomEvent {
 	id: string;
 	name: string;
 	kind: EventKind;
-	/** 所属标签页；不可为 builtin */
+	/** 所属标签页（可为 builtin） */
 	categoryId: string;
 	/** 1–12 */
 	month: number;
-	/** 1–31 */
+	/** 1–31；除夕为 0 */
 	day: number;
+	/** 是否在日历中显示 */
+	visible: boolean;
+	/** 由内置节假日种子生成 */
+	builtin?: boolean;
 }
 
 export interface WannianliSettings {
 	eventCategories: EventCategory[];
 	customEvents: CustomEvent[];
+	/** 已删除的内置事件 id，避免再次种子写入 */
+	removedBuiltinIds: string[];
 }
 
 export const DEFAULT_EVENT_CATEGORIES: EventCategory[] = [
@@ -40,19 +46,20 @@ export const DEFAULT_EVENT_CATEGORIES: EventCategory[] = [
 
 /** 从原 festivals 个人生日迁入的默认自定义事件 */
 export const DEFAULT_CUSTOM_EVENTS: CustomEvent[] = [
-	{ id: 'default-guo', name: '郭XX生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 9, day: 24 },
-	{ id: 'default-liu', name: '刘xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 11, day: 8 },
-	{ id: 'default-qiu', name: '邱xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 2, day: 13 },
-	{ id: 'default-mom', name: '老妈生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 5, day: 12 },
-	{ id: 'default-li', name: '李xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 5, day: 18 },
-	{ id: 'default-yang', name: '杨xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 6, day: 25 },
-	{ id: 'default-dad', name: '老爸生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 7, day: 12 },
-	{ id: 'default-ouyang', name: '欧阳xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 7, day: 18 },
+	{ id: 'default-guo', name: '郭XX生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 9, day: 24, visible: true },
+	{ id: 'default-liu', name: '刘xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 11, day: 8, visible: true },
+	{ id: 'default-qiu', name: '邱xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 2, day: 13, visible: true },
+	{ id: 'default-mom', name: '老妈生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 5, day: 12, visible: true },
+	{ id: 'default-li', name: '李xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 5, day: 18, visible: true },
+	{ id: 'default-yang', name: '杨xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 6, day: 25, visible: true },
+	{ id: 'default-dad', name: '老爸生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 7, day: 12, visible: true },
+	{ id: 'default-ouyang', name: '欧阳xx生日', kind: 'lunar', categoryId: BIRTHDAY_CATEGORY_ID, month: 7, day: 18, visible: true },
 ];
 
 export const DEFAULT_SETTINGS: WannianliSettings = {
 	eventCategories: DEFAULT_EVENT_CATEGORIES.map((c) => ({ ...c })),
 	customEvents: DEFAULT_CUSTOM_EVENTS.map((e) => ({ ...e })),
+	removedBuiltinIds: [],
 };
 
 export function createEventId(): string {
@@ -68,8 +75,11 @@ function resolveCategoryId(
 	raw: Partial<CustomEvent> & { visibility?: string },
 	validIds: Set<string>,
 ): string {
-	if (typeof raw.categoryId === 'string' && validIds.has(raw.categoryId) && raw.categoryId !== BUILTIN_CATEGORY_ID) {
+	if (typeof raw.categoryId === 'string' && validIds.has(raw.categoryId)) {
 		return raw.categoryId;
+	}
+	if (raw.builtin || (typeof raw.id === 'string' && raw.id.startsWith('builtin-'))) {
+		return BUILTIN_CATEGORY_ID;
 	}
 	if (validIds.has(BIRTHDAY_CATEGORY_ID)) return BIRTHDAY_CATEGORY_ID;
 	const firstCustom = [...validIds].find((id) => id !== BUILTIN_CATEGORY_ID);
@@ -114,6 +124,8 @@ export function normalizeCustomEvent(
 	},
 	validCategoryIds: Set<string>,
 ): CustomEvent {
+	const builtin =
+		Boolean(raw.builtin) || raw.id.startsWith('builtin-');
 	return {
 		id: raw.id,
 		name: raw.name,
@@ -121,6 +133,8 @@ export function normalizeCustomEvent(
 		categoryId: resolveCategoryId(raw, validCategoryIds),
 		month: raw.month,
 		day: raw.day,
+		visible: raw.visible !== false,
+		builtin: builtin || undefined,
 	};
 }
 
@@ -153,12 +167,19 @@ export function normalizeCustomEvents(
 					visibility: e.visibility,
 					month: e.month,
 					day: e.day,
+					visible: e.visible,
+					builtin: e.builtin,
 				},
 				validIds,
 			),
 		);
 	}
 	return result;
+}
+
+export function normalizeRemovedBuiltinIds(raw: unknown): string[] {
+	if (!Array.isArray(raw)) return [];
+	return raw.filter((id): id is string => typeof id === 'string' && id.length > 0);
 }
 
 export function userEventCategories(categories: EventCategory[]): EventCategory[] {

@@ -667,18 +667,89 @@ th.wnl-weekend-sun {
   border: 1px dashed var(--background-modifier-border);
   border-radius: 8px;
 }
+.wnl-event-modal__row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+.wnl-event-modal__row:last-child {
+  border-bottom: none;
+}
+.wnl-event-modal__row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.wnl-event-modal__row-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.wnl-event-modal__row-name {
+  font-weight: 600;
+  color: var(--text-normal);
+  word-break: break-word;
+}
+.wnl-event-modal__row-date {
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.wnl-event-modal__row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.wnl-event-modal__row-del {
+  color: var(--text-error);
+  border-color: color-mix(in srgb, var(--text-error) 35%, var(--background-modifier-border));
+}
 .wnl-event-modal__row .setting-item {
   border-top: none;
   padding: 8px 0;
 }
-.wnl-event-modal__row--builtin .setting-item {
+.wnl-event-modal__row--builtin {
   opacity: 0.92;
 }
-.wnl-event-modal__row--builtin .setting-item-name {
-  font-weight: 600;
+.wnl-event-modal__row--hidden {
+  opacity: 0.55;
 }
-.wnl-event-modal__row--builtin .setting-item-description {
-  color: var(--text-faint);
+.wnl-event-modal__row--hidden .wnl-event-modal__row-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.wnl-event-modal__icon-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.wnl-event-modal__icon-btn .svg-icon {
+  width: 15px;
+  height: 15px;
+}
+.wnl-event-modal__icon-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.wnl-event-modal__icon-btn.is-danger:hover {
+  background: color-mix(in srgb, var(--text-error) 14%, transparent);
+  color: var(--text-error);
 }
 /* 遮罩层内水平 + 垂直居中 */
 .wnl-day-detail-container {

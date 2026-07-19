@@ -1,4 +1,8 @@
-import { getLunarFestivalNames, getSolarFestivalNames } from '../data/event-store';
+import {
+	getChuxiLabel,
+	getLunarFestivalNames,
+	getSolarFestivalNames,
+} from '../data/event-store';
 import { Animals, solarTerm } from '../data/terms';
 import { cDay } from './format';
 import {
@@ -105,9 +109,12 @@ export function calendar(y: number, m: number, d: number): CalElement {
 		}
 
 		if (cld.lMonth === 12 && cld.lDay === lunarMonthDays(cld.lYear, 12)) {
-			cld.lunarFestival = cld.lunarFestival
-				? `${cld.lunarFestival} 除夕`
-				: '除夕';
+			const chuxi = getChuxiLabel();
+			if (chuxi) {
+				cld.lunarFestival = cld.lunarFestival
+					? `${cld.lunarFestival} ${chuxi}`
+					: chuxi;
+			}
 		}
 	} catch {
 		cld.lYear = y;

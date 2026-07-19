@@ -1,10 +1,17 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import { VIEW_TYPE_WANNIANLI } from './scripts/constants';
-import { setCustomEvents, setEventCategories } from './scripts/data/event-store';
+import {
+	getCustomEvents,
+	getRemovedBuiltinIds,
+	setCustomEvents,
+	setEventCategories,
+	setRemovedBuiltinIds,
+} from './scripts/data/event-store';
 import {
 	DEFAULT_SETTINGS,
 	normalizeCustomEvents,
 	normalizeEventCategories,
+	normalizeRemovedBuiltinIds,
 	type WannianliSettings,
 } from './scripts/data/settings';
 import { WannianliView } from './scripts/views/calendar-view';
@@ -42,23 +49,37 @@ export default class WannianliPlugin extends Plugin {
 		const eventCategories = normalizeEventCategories(
 			data?.eventCategories ?? DEFAULT_SETTINGS.eventCategories,
 		);
+		const removedBuiltinIds = normalizeRemovedBuiltinIds(
+			data?.removedBuiltinIds ?? DEFAULT_SETTINGS.removedBuiltinIds,
+		);
 		const customEvents = data?.customEvents
 			? normalizeCustomEvents(data.customEvents, eventCategories)
 			: DEFAULT_SETTINGS.customEvents.map((e) => ({ ...e }));
+
+		setEventCategories(eventCategories);
+		setRemovedBuiltinIds(removedBuiltinIds);
+		setCustomEvents(customEvents);
 
 		this.settings = {
 			...DEFAULT_SETTINGS,
 			...data,
 			eventCategories,
-			customEvents,
+			customEvents: getCustomEvents(),
+			removedBuiltinIds: getRemovedBuiltinIds(),
 		};
-		setEventCategories(this.settings.eventCategories);
-		setCustomEvents(this.settings.customEvents);
+
+		// 首次种子写入内置节假日后落盘
+		if (this.settings.customEvents.length !== customEvents.length) {
+			await this.saveSettings();
+		}
 	}
 
 	async saveSettings(): Promise<void> {
 		setEventCategories(this.settings.eventCategories);
+		setRemovedBuiltinIds(this.settings.removedBuiltinIds);
 		setCustomEvents(this.settings.customEvents);
+		this.settings.customEvents = getCustomEvents();
+		this.settings.removedBuiltinIds = getRemovedBuiltinIds();
 		await this.saveData(this.settings);
 	}
 

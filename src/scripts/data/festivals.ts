@@ -76,6 +76,15 @@ function parseFestivalEntries(items: string[], kind: EventKind): BuiltInFestival
 	return result;
 }
 
+function pad2(n: number): string {
+	return n < 10 ? '0' + n : String(n);
+}
+
+/** 内置节假日稳定 id，用于入库与去重 */
+export function builtinEventId(festival: BuiltInFestival): string {
+	return `builtin-${festival.kind}-${pad2(festival.month)}${pad2(festival.day)}-${festival.name}`;
+}
+
 /** 全部内置节假日（按月日排序） */
 export function listBuiltInFestivals(): BuiltInFestival[] {
 	const all = [...parseFestivalEntries(sFtv, 'solar'), ...parseFestivalEntries(lFtv, 'lunar')];
