@@ -11,6 +11,7 @@ export interface MonthGridOptions {
 	calendarMode?: CalendarMode;
 	showWeekNumbers?: boolean;
 	colorfulTheme?: boolean;
+	showMonthBackground?: boolean;
 	onDayClick?: (info: CalElement) => void;
 }
 
@@ -26,16 +27,23 @@ export function renderMonthGrid(
 		calendarMode = 'solar',
 		showWeekNumbers = false,
 		colorfulTheme = true,
+		showMonthBackground = true,
 		onDayClick,
 	} = options;
 	const isLunarMonth = data.kind === 'lunar' || calendarMode === 'lunar';
 
 	const monthNum = data.month + 1;
 	const themeClass = colorfulTheme ? ` wnl-month--m${monthNum}` : ' wnl-month--plain';
+	const bgClass = showMonthBackground ? ' wnl-month--bg' : '';
 	const wrap = container.createDiv({
 		cls:
-			(compact ? 'wnl-month wnl-month--compact' : 'wnl-month') + themeClass,
+			(compact ? 'wnl-month wnl-month--compact' : 'wnl-month') +
+			themeClass +
+			bgClass,
 	});
+	if (showMonthBackground) {
+		wrap.dataset.monthLabel = monthBackgroundLabel(data);
+	}
 
 	const header = wrap.createDiv({ cls: 'wnl-month__header' });
 	header.createEl('div', {
@@ -106,6 +114,15 @@ function monthTitle(data: MonthData): string {
 	return `${data.year} 年 ${data.month + 1} 月`;
 }
 
+/** 月卡片虚色背景文案，如「1月」「正月」 */
+function monthBackgroundLabel(data: MonthData): string {
+	if (data.kind === 'lunar' && data.lunarMonth) {
+		const leap = data.isLeapMonth ? '闰' : '';
+		return `${leap}${lunarMonthToChinese(data.lunarMonth)}月`;
+	}
+	return `${data.month + 1}月`;
+}
+
 function fillDayTd(
 	td: HTMLElement,
 	cell: DayCell,
@@ -146,9 +163,6 @@ function fillDayTd(
 	);
 	if (holiday) {
 		td.addClass(holiday.isOffDay ? 'wnl-day--holiday' : 'wnl-day--workday');
-		td.title = holiday.isOffDay
-			? `${holiday.name}（放假）`
-			: `${holiday.name}（补班）`;
 	}
 
 	if (onDayClick) {

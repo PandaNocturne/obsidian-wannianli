@@ -81,6 +81,7 @@ export class WannianliView extends ItemView {
 			display: {
 				showWeekNumbers: s.showWeekNumbers,
 				colorfulTheme: s.colorfulTheme,
+				showMonthBackground: s.showMonthBackground,
 				monthWidth: s.monthWidth,
 				gridGap: s.gridGap,
 			},

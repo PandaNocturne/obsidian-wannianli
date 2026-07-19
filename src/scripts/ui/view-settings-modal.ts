@@ -12,7 +12,11 @@ import {
 
 export type DisplaySettings = Pick<
 	WannianliSettings,
-	'showWeekNumbers' | 'colorfulTheme' | 'monthWidth' | 'gridGap'
+	| 'showWeekNumbers'
+	| 'colorfulTheme'
+	| 'showMonthBackground'
+	| 'monthWidth'
+	| 'gridGap'
 >;
 
 /** 视图显示设置弹窗 */
@@ -28,6 +32,7 @@ export class ViewSettingsModal extends Modal {
 		this.draft = {
 			showWeekNumbers: s.showWeekNumbers,
 			colorfulTheme: s.colorfulTheme,
+			showMonthBackground: s.showMonthBackground,
 			monthWidth: s.monthWidth,
 			gridGap: s.gridGap,
 		};
@@ -64,6 +69,16 @@ export class ViewSettingsModal extends Modal {
 			.addToggle((toggle) => {
 				toggle.setValue(this.draft.colorfulTheme).onChange((value) => {
 					this.draft.colorfulTheme = value;
+					void this.persist();
+				});
+			});
+
+		new Setting(contentEl)
+			.setName('月份背景')
+			.setDesc('在月卡片中以大号虚色显示月份，如「1月」')
+			.addToggle((toggle) => {
+				toggle.setValue(this.draft.showMonthBackground).onChange((value) => {
+					this.draft.showMonthBackground = value;
 					void this.persist();
 				});
 			});

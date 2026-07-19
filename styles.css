@@ -211,6 +211,7 @@
   align-items: stretch;
 }
 .wnl-month {
+  position: relative;
   min-width: 0;
   width: 100%;
   max-width: none;
@@ -223,6 +224,33 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   /* 周末底：比 soft 稍深，随当月主题色变化 */
   --wnl-weekend-bg: color-mix(in srgb, var(--wnl-month-color, #000080) 28%, var(--background-primary));
+}
+.wnl-month--bg::before {
+  content: attr(data-month-label);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1.2rem;
+  font-size: 8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--wnl-month-color, #000080);
+  opacity: 0.16;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+.wnl-month--compact.wnl-month--bg::before {
+  font-size: 5.75rem;
+  padding-top: 0.8rem;
+}
+.wnl-month__header,
+.wnl-month .wnl-grid {
+  position: relative;
+  z-index: 1;
 }
 .wnl-month__header {
   background: var(--wnl-month-color, #000080);

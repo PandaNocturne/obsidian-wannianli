@@ -101,9 +101,10 @@ export function renderToolbar(
 
 	const todayBtn = right.createEl('button', {
 		cls: 'wnl-btn wnl-btn--accent',
-		text: '今日',
-		attr: { type: 'button', title: '回到今年' },
+		attr: { type: 'button', title: '回到今年', 'aria-label': '今日' },
 	});
+	setIcon(todayBtn, 'calendar-check');
+	todayBtn.createSpan({ text: '今日' });
 	todayBtn.addEventListener('click', () => callbacks.onToday());
 }
 

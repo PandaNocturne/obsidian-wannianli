@@ -19,6 +19,7 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 	const display = options.display ?? {
 		showWeekNumbers: false,
 		colorfulTheme: true,
+		showMonthBackground: true,
 		monthWidth: MONTH_WIDTH_DEFAULT,
 		gridGap: 10,
 	};
@@ -32,6 +33,7 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 		showGz: false as const,
 		showWeekNumbers: display.showWeekNumbers,
 		colorfulTheme: display.colorfulTheme,
+		showMonthBackground: display.showMonthBackground,
 		onDayClick: options.onDayClick,
 	};
 

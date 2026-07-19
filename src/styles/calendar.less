@@ -21,6 +21,7 @@
 }
 
 .wnl-month {
+	position: relative;
 	min-width: 0;
 	width: 100%;
 	max-width: none;
@@ -37,6 +38,36 @@
 		var(--wnl-month-color, #000080) 28%,
 		var(--background-primary)
 	);
+
+	&--bg::before {
+		content: attr(data-month-label);
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding-top: 1.2rem;
+		font-size: 8rem;
+		font-weight: 800;
+		letter-spacing: 0.06em;
+		line-height: 1;
+		color: var(--wnl-month-color, #000080);
+		opacity: 0.16;
+		pointer-events: none;
+		user-select: none;
+		z-index: 0;
+	}
+
+	&--compact&--bg::before {
+		font-size: 5.75rem;
+		padding-top: 0.8rem;
+	}
+
+	&__header,
+	.wnl-grid {
+		position: relative;
+		z-index: 1;
+	}
 
 	&__header {
 		background: var(--wnl-month-color, #000080);
