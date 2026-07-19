@@ -1,3 +1,5 @@
+import { YEAR_MAX, YEAR_MIN } from '../constants';
+
 /** 自定义事件类型：阳历（公历）或阴历（农历） */
 export type EventKind = 'solar' | 'lunar';
 
@@ -30,6 +32,10 @@ export interface CustomEvent {
 	visible: boolean;
 	/** 备注（可选） */
 	note?: string;
+	/** 生效起始公历年（可选，空=无限制） */
+	startYear?: number;
+	/** 生效结束公历年（可选，空=无限制） */
+	endYear?: number;
 	/** 由内置节假日种子生成 */
 	builtin?: boolean;
 }
@@ -140,6 +146,44 @@ export function createCategoryId(): string {
 	return `cat-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** 解析可选公历年份；空/非法返回 undefined */
+export function normalizeOptionalYear(raw: unknown): number | undefined {
+	if (raw === null || raw === undefined || raw === '') return undefined;
+	const n = typeof raw === 'number' ? raw : Number(String(raw).trim());
+	if (!Number.isFinite(n)) return undefined;
+	const y = Math.round(n);
+	if (y < YEAR_MIN || y > YEAR_MAX) return undefined;
+	return y;
+}
+
+/** 规范化起止年：空=无限制；若起 > 止则交换 */
+export function normalizeYearRange(
+	startRaw: unknown,
+	endRaw: unknown,
+): { startYear?: number; endYear?: number } {
+	let startYear = normalizeOptionalYear(startRaw);
+	let endYear = normalizeOptionalYear(endRaw);
+	if (startYear !== undefined && endYear !== undefined && startYear > endYear) {
+		const tmp = startYear;
+		startYear = endYear;
+		endYear = tmp;
+	}
+	return {
+		...(startYear !== undefined ? { startYear } : {}),
+		...(endYear !== undefined ? { endYear } : {}),
+	};
+}
+
+/** 事件是否在指定公历年生效（空年份=无限制） */
+export function eventMatchesYear(
+	event: Pick<CustomEvent, 'startYear' | 'endYear'>,
+	year: number,
+): boolean {
+	if (event.startYear !== undefined && year < event.startYear) return false;
+	if (event.endYear !== undefined && year > event.endYear) return false;
+	return true;
+}
+
 /** 兼容旧 visibility / 缺省 categoryId */
 function resolveCategoryId(
 	raw: Partial<CustomEvent> & { visibility?: string },
@@ -201,6 +245,7 @@ export function normalizeCustomEvent(
 ): CustomEvent {
 	const builtin =
 		Boolean(raw.builtin) || raw.id.startsWith('builtin-');
+	const years = normalizeYearRange(raw.startYear, raw.endYear);
 	return {
 		id: raw.id,
 		name: raw.name,
@@ -210,6 +255,7 @@ export function normalizeCustomEvent(
 		day: raw.day,
 		visible: raw.visible !== false,
 		note: typeof raw.note === 'string' ? raw.note.trim() : '',
+		...years,
 		builtin: builtin || undefined,
 	};
 }
@@ -245,6 +291,8 @@ export function normalizeCustomEvents(
 					day: e.day,
 					visible: e.visible,
 					note: e.note,
+					startYear: e.startYear,
+					endYear: e.endYear,
 					builtin: e.builtin,
 				},
 				validIds,

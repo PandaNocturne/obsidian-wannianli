@@ -2,6 +2,7 @@ import { builtinEventId, listBuiltInFestivals } from './festivals';
 import {
 	BIRTHDAY_CATEGORY_ID,
 	BUILTIN_CATEGORY_ID,
+	eventMatchesYear,
 	normalizeCustomEvent,
 	normalizeCustomEvents,
 	normalizeEventCategories,
@@ -160,50 +161,63 @@ export function findCustomEvents(
 	kind: EventKind,
 	month: number,
 	day: number,
+	year?: number,
 ): CustomEvent[] {
-	return customEvents.filter(
-		(e) => e.kind === kind && e.month === month && e.day === day,
-	);
+	return customEvents.filter((e) => {
+		if (e.kind !== kind || e.month !== month || e.day !== day) return false;
+		if (year !== undefined && !eventMatchesYear(e, year)) return false;
+		return true;
+	});
 }
 
 export function findCustomEventsByCategory(categoryId: string): CustomEvent[] {
 	return customEvents.filter((e) => e.categoryId === categoryId);
 }
 
-/** 公历节日名：仅显示 visible 事件 */
-export function getSolarFestivalNames(month: number, day: number): string {
+/** 公历节日名：仅显示 visible 且年份范围内的事件 */
+export function getSolarFestivalNames(
+	month: number,
+	day: number,
+	year: number,
+): string {
 	return customEvents
 		.filter(
 			(e) =>
 				e.visible &&
 				e.kind === 'solar' &&
 				e.month === month &&
-				e.day === day,
+				e.day === day &&
+				eventMatchesYear(e, year),
 		)
 		.map((e) => e.name)
 		.join(' ');
 }
 
-/** 农历节日名：仅显示 visible 事件（不含除夕 day=0） */
-export function getLunarFestivalNames(month: number, day: number): string {
+/** 农历节日名：仅显示 visible 且年份范围内的事件（不含除夕 day=0） */
+export function getLunarFestivalNames(
+	month: number,
+	day: number,
+	year: number,
+): string {
 	return customEvents
 		.filter(
 			(e) =>
 				e.visible &&
 				e.kind === 'lunar' &&
 				e.month === month &&
-				e.day === day,
+				e.day === day &&
+				eventMatchesYear(e, year),
 		)
 		.map((e) => e.name)
 		.join(' ');
 }
 
-/** 除夕文案；不可见时返回 null */
-export function getChuxiLabel(): string | null {
+/** 除夕文案；不可见或超出年份范围时返回 null */
+export function getChuxiLabel(year: number): string | null {
 	const event = customEvents.find(
 		(e) => e.kind === 'lunar' && e.month === 12 && e.day === 0,
 	);
 	if (!event) return '除夕';
-	if (!event.visible) return null;
+	if (!event.visible || !eventMatchesYear(event, year)) return null;
 	return event.name;
 }

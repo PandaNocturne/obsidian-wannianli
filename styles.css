@@ -890,6 +890,26 @@ th.wnl-weekend-sun {
   outline: none;
   box-shadow: none;
 }
+.wnl-event-modal .wnl-date-field__input--year {
+  width: 3.6em;
+  font-weight: 600;
+}
+.wnl-event-modal .wnl-date-field__input::placeholder {
+  color: var(--text-faint);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+.wnl-event-modal .wnl-date-field__sep {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+.wnl-event-modal .wnl-date-field__parts--years {
+  gap: 8px;
+}
 .wnl-event-modal .wnl-date-field__spinners {
   display: flex;
   flex-direction: column;
@@ -1109,6 +1129,13 @@ th.wnl-weekend-sun {
   border-color: color-mix(in srgb, #c47b2a 30%, transparent);
 }
 .wnl-event-tag--date {
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border-color: var(--background-modifier-border);
+  font-variant-numeric: tabular-nums;
+  font-weight: 550;
+}
+.wnl-event-tag--years {
   color: var(--text-muted);
   background: var(--background-secondary);
   border-color: var(--background-modifier-border);

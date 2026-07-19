@@ -28,6 +28,9 @@ import {
 	isValidMonthDay,
 	renderEventMetaTags,
 	renderMonthDayPicker,
+	renderYearRangeFields,
+	yearInputsFromEvent,
+	yearsFromInputs,
 } from './event-date';
 import { NamePromptModal } from './name-prompt-modal';
 import { ConfirmModal } from './confirm-modal';
@@ -48,6 +51,8 @@ export class DayEventModal extends Modal {
 	private draftKind: EventKind = 'solar';
 	private draftVisible = true;
 	private draftNote = '';
+	private draftStartYear = '';
+	private draftEndYear = '';
 	private editName = '';
 	private editCategoryId = BIRTHDAY_CATEGORY_ID;
 	private editKind: EventKind = 'solar';
@@ -55,6 +60,8 @@ export class DayEventModal extends Modal {
 	private editDay = 1;
 	private editVisible = true;
 	private editNote = '';
+	private editStartYear = '';
+	private editEndYear = '';
 
 	constructor(
 		private plugin: WannianliPlugin,
@@ -87,17 +94,20 @@ export class DayEventModal extends Modal {
 
 	private collectDayEvents(): CustomEvent[] {
 		const { dayInfo } = this;
+		const year = dayInfo.sYear;
 		const result: CustomEvent[] = [
-			...findCustomEvents('solar', dayInfo.sMonth, dayInfo.sDay),
+			...findCustomEvents('solar', dayInfo.sMonth, dayInfo.sDay, year),
 		];
 
 		if (dayInfo.lMonth && dayInfo.lDay && !dayInfo.isLeap) {
-			result.push(...findCustomEvents('lunar', dayInfo.lMonth, dayInfo.lDay));
+			result.push(
+				...findCustomEvents('lunar', dayInfo.lMonth, dayInfo.lDay, year),
+			);
 			const isChuxi =
 				dayInfo.lMonth === 12 &&
 				dayInfo.lDay === lunarMonthDays(dayInfo.lYear, 12);
 			if (isChuxi) {
-				result.push(...findCustomEvents('lunar', 12, 0));
+				result.push(...findCustomEvents('lunar', 12, 0, year));
 			}
 		}
 
@@ -189,6 +199,8 @@ export class DayEventModal extends Modal {
 		btn.addEventListener('click', () => {
 			this.editingEvent = null;
 			this.draftVisible = true;
+			this.draftStartYear = '';
+			this.draftEndYear = '';
 			this.showAddForm = true;
 			this.render();
 		});
@@ -246,6 +258,17 @@ export class DayEventModal extends Modal {
 				});
 			});
 
+		renderYearRangeFields(form, {
+			getStartYear: () => this.draftStartYear,
+			getEndYear: () => this.draftEndYear,
+			onStartChange: (v) => {
+				this.draftStartYear = v;
+			},
+			onEndChange: (v) => {
+				this.draftEndYear = v;
+			},
+		});
+
 		new Setting(form)
 			.setName('备注')
 			.setClass('wnl-setting-block')
@@ -300,6 +323,9 @@ export class DayEventModal extends Modal {
 		this.editDay = event.day;
 		this.editVisible = event.visible;
 		this.editNote = event.note ?? '';
+		const years = yearInputsFromEvent(event);
+		this.editStartYear = years.startYear;
+		this.editEndYear = years.endYear;
 		this.render();
 	}
 
@@ -361,6 +387,17 @@ export class DayEventModal extends Modal {
 			onChange: (month, day) => {
 				this.editMonth = month;
 				this.editDay = day;
+			},
+		});
+
+		renderYearRangeFields(form, {
+			getStartYear: () => this.editStartYear,
+			getEndYear: () => this.editEndYear,
+			onStartChange: (v) => {
+				this.editStartYear = v;
+			},
+			onEndChange: (v) => {
+				this.editEndYear = v;
 			},
 		});
 
@@ -556,6 +593,7 @@ export class DayEventModal extends Modal {
 			return;
 		}
 
+		const years = yearsFromInputs(this.draftStartYear, this.draftEndYear);
 		await this.persist(
 			upsertCustomEvent({
 				id: createEventId(),
@@ -566,11 +604,15 @@ export class DayEventModal extends Modal {
 				day,
 				visible: this.draftVisible,
 				note: this.draftNote.trim(),
+				startYear: years.startYear,
+				endYear: years.endYear,
 			}),
 		);
 
 		this.draftName = '';
 		this.draftNote = '';
+		this.draftStartYear = '';
+		this.draftEndYear = '';
 		this.draftVisible = true;
 		this.showAddForm = false;
 		this.changed = true;
@@ -592,6 +634,7 @@ export class DayEventModal extends Modal {
 			return;
 		}
 
+		const years = yearsFromInputs(this.editStartYear, this.editEndYear);
 		await this.persist(
 			upsertCustomEvent({
 				...event,
@@ -602,6 +645,8 @@ export class DayEventModal extends Modal {
 				day: this.editDay,
 				visible: this.editVisible,
 				note: this.editNote.trim(),
+				startYear: years.startYear,
+				endYear: years.endYear,
 			}),
 		);
 

@@ -1,5 +1,10 @@
 import { setIcon } from 'obsidian';
-import type { CustomEvent, EventKind } from '../data/settings';
+import { YEAR_MAX, YEAR_MIN } from '../constants';
+import {
+	normalizeYearRange,
+	type CustomEvent,
+	type EventKind,
+} from '../data/settings';
 
 export function maxDayForKind(kind: EventKind): number {
 	return kind === 'lunar' ? 30 : 31;
@@ -47,10 +52,13 @@ export function formatEventDate(event: Pick<CustomEvent, 'kind' | 'month' | 'day
 	return `${kindLabel} ${dateLabel}`;
 }
 
-/** 事件列表行：历法 / 日期 / 内置 / 已隐藏 标签 */
+/** 事件列表行：历法 / 日期 / 年份范围 / 内置 / 已隐藏 标签 */
 export function renderEventMetaTags(
 	parent: HTMLElement,
-	event: Pick<CustomEvent, 'kind' | 'month' | 'day' | 'builtin' | 'visible'>,
+	event: Pick<
+		CustomEvent,
+		'kind' | 'month' | 'day' | 'builtin' | 'visible' | 'startYear' | 'endYear'
+	>,
 ): void {
 	const tags = parent.createDiv({ cls: 'wnl-event-modal__row-tags' });
 	const { kindLabel, dateLabel, kind } = formatEventDateParts(event);
@@ -63,6 +71,13 @@ export function renderEventMetaTags(
 		cls: 'wnl-event-tag wnl-event-tag--date',
 		text: dateLabel,
 	});
+	const yearLabel = formatYearRangeLabel(event);
+	if (yearLabel) {
+		tags.createSpan({
+			cls: 'wnl-event-tag wnl-event-tag--years',
+			text: yearLabel,
+		});
+	}
 	if (event.builtin) {
 		tags.createSpan({
 			cls: 'wnl-event-tag wnl-event-tag--builtin',
@@ -75,6 +90,118 @@ export function renderEventMetaTags(
 			text: '已隐藏',
 		});
 	}
+}
+
+export function formatYearRangeLabel(
+	event: Pick<CustomEvent, 'startYear' | 'endYear'>,
+): string | null {
+	const { startYear, endYear } = event;
+	if (startYear === undefined && endYear === undefined) return null;
+	if (startYear !== undefined && endYear !== undefined) {
+		return startYear === endYear ? `${startYear}年` : `${startYear}–${endYear}`;
+	}
+	if (startYear !== undefined) return `${startYear}年起`;
+	return `至${endYear}年`;
+}
+
+export interface YearRangeFieldOptions {
+	getStartYear: () => string;
+	getEndYear: () => string;
+	onStartChange: (value: string) => void;
+	onEndChange: (value: string) => void;
+}
+
+/** 可选起止公历年，同一「年份」栏；留空表示无限制 */
+export function renderYearRangeFields(
+	parent: HTMLElement,
+	opts: YearRangeFieldOptions,
+): void {
+	const wrap = parent.createDiv({ cls: 'wnl-date-field' });
+	const row = wrap.createDiv({ cls: 'wnl-date-field__row' });
+	row.createDiv({ cls: 'wnl-date-field__label', text: '年份' });
+
+	const parts = row.createDiv({ cls: 'wnl-date-field__parts wnl-date-field__parts--years' });
+
+	const startInput = createYearInput(parts, {
+		ariaLabel: '开始年份',
+		placeholder: '不限',
+		value: opts.getStartYear(),
+		onChange: opts.onStartChange,
+	});
+
+	parts.createSpan({ cls: 'wnl-date-field__sep', text: '–' });
+
+	const endInput = createYearInput(parts, {
+		ariaLabel: '结束年份',
+		placeholder: '不限',
+		value: opts.getEndYear(),
+		onChange: opts.onEndChange,
+	});
+
+	// 同步外部状态（重绘时）
+	startInput.value = opts.getStartYear();
+	endInput.value = opts.getEndYear();
+}
+
+function createYearInput(
+	parent: HTMLElement,
+	options: {
+		ariaLabel: string;
+		placeholder: string;
+		value: string;
+		onChange: (value: string) => void;
+	},
+): HTMLInputElement {
+	const part = parent.createDiv({ cls: 'wnl-date-field__part' });
+	const control = part.createDiv({ cls: 'wnl-date-field__control' });
+	const input = control.createEl('input', {
+		cls: 'wnl-date-field__input wnl-date-field__input--year',
+		type: 'text',
+		value: options.value,
+		attr: {
+			inputmode: 'numeric',
+			placeholder: options.placeholder,
+			'aria-label': options.ariaLabel,
+			autocomplete: 'off',
+			title: `公历 ${YEAR_MIN}–${YEAR_MAX}，留空不限制`,
+		},
+	});
+
+	const commit = (): void => {
+		options.onChange(input.value.trim());
+	};
+
+	input.addEventListener('change', commit);
+	input.addEventListener('blur', commit);
+	input.addEventListener('input', () => {
+		options.onChange(input.value);
+	});
+	input.addEventListener('keydown', (evt) => {
+		if (evt.key === 'Enter') {
+			evt.preventDefault();
+			commit();
+			input.blur();
+		}
+	});
+
+	return input;
+}
+
+/** 从表单字符串解析起止年 */
+export function yearsFromInputs(
+	startRaw: string,
+	endRaw: string,
+): { startYear?: number; endYear?: number } {
+	return normalizeYearRange(startRaw.trim(), endRaw.trim());
+}
+
+export function yearInputsFromEvent(
+	event: Pick<CustomEvent, 'startYear' | 'endYear'>,
+): { startYear: string; endYear: string } {
+	return {
+		startYear: event.startYear !== undefined ? String(event.startYear) : '',
+		endYear: event.endYear !== undefined ? String(event.endYear) : '',
+	};
 }
 
 export interface MonthDayPickerOptions {

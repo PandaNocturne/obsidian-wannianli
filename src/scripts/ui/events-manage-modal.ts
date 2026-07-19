@@ -24,6 +24,9 @@ import {
 	isValidMonthDay,
 	renderEventMetaTags,
 	renderMonthDayPicker,
+	renderYearRangeFields,
+	yearInputsFromEvent,
+	yearsFromInputs,
 } from './event-date';
 import { NamePromptModal } from './name-prompt-modal';
 import { ConfirmModal } from './confirm-modal';
@@ -44,6 +47,8 @@ export class EventsManageModal extends Modal {
 	private draftDay = 1;
 	private draftVisible = true;
 	private draftNote = '';
+	private draftStartYear = '';
+	private draftEndYear = '';
 	private editName = '';
 	private editCategoryId = BIRTHDAY_CATEGORY_ID;
 	private editKind: EventKind = 'solar';
@@ -51,6 +56,8 @@ export class EventsManageModal extends Modal {
 	private editDay = 1;
 	private editVisible = true;
 	private editNote = '';
+	private editStartYear = '';
+	private editEndYear = '';
 
 	constructor(
 		private plugin: WannianliPlugin,
@@ -158,6 +165,8 @@ export class EventsManageModal extends Modal {
 		btn.addEventListener('click', () => {
 			this.editingEvent = null;
 			this.draftVisible = true;
+			this.draftStartYear = '';
+			this.draftEndYear = '';
 			this.showAddForm = true;
 			this.render();
 		});
@@ -205,6 +214,17 @@ export class EventsManageModal extends Modal {
 			onChange: (month, day) => {
 				this.draftMonth = month;
 				this.draftDay = day;
+			},
+		});
+
+		renderYearRangeFields(form, {
+			getStartYear: () => this.draftStartYear,
+			getEndYear: () => this.draftEndYear,
+			onStartChange: (v) => {
+				this.draftStartYear = v;
+			},
+			onEndChange: (v) => {
+				this.draftEndYear = v;
 			},
 		});
 
@@ -262,6 +282,9 @@ export class EventsManageModal extends Modal {
 		this.editDay = event.day;
 		this.editVisible = event.visible;
 		this.editNote = event.note ?? '';
+		const years = yearInputsFromEvent(event);
+		this.editStartYear = years.startYear;
+		this.editEndYear = years.endYear;
 		this.render();
 	}
 
@@ -324,6 +347,17 @@ export class EventsManageModal extends Modal {
 			onChange: (month, day) => {
 				this.editMonth = month;
 				this.editDay = day;
+			},
+		});
+
+		renderYearRangeFields(form, {
+			getStartYear: () => this.editStartYear,
+			getEndYear: () => this.editEndYear,
+			onStartChange: (v) => {
+				this.editStartYear = v;
+			},
+			onEndChange: (v) => {
+				this.editEndYear = v;
 			},
 		});
 
@@ -507,6 +541,7 @@ export class EventsManageModal extends Modal {
 			return;
 		}
 
+		const years = yearsFromInputs(this.draftStartYear, this.draftEndYear);
 		await this.persistEvents(
 			upsertCustomEvent({
 				id: createEventId(),
@@ -517,11 +552,15 @@ export class EventsManageModal extends Modal {
 				day: this.draftDay,
 				visible: this.draftVisible,
 				note: this.draftNote.trim(),
+				startYear: years.startYear,
+				endYear: years.endYear,
 			}),
 		);
 
 		this.draftName = '';
 		this.draftNote = '';
+		this.draftStartYear = '';
+		this.draftEndYear = '';
 		this.draftVisible = true;
 		this.showAddForm = false;
 		this.changed = true;
@@ -543,6 +582,7 @@ export class EventsManageModal extends Modal {
 			return;
 		}
 
+		const years = yearsFromInputs(this.editStartYear, this.editEndYear);
 		await this.persistEvents(
 			upsertCustomEvent({
 				...event,
@@ -553,6 +593,8 @@ export class EventsManageModal extends Modal {
 				day: this.editDay,
 				visible: this.editVisible,
 				note: this.editNote.trim(),
+				startYear: years.startYear,
+				endYear: years.endYear,
 			}),
 		);
 

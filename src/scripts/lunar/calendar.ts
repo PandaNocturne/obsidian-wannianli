@@ -36,7 +36,7 @@ export function calendar(y: number, m: number, d: number): CalElement {
 		const term1 = sTerm(y, m * 2);
 		const term2 = sTerm(y, m * 2 + 1);
 
-		cld.solarFestival = getSolarFestivalNames(m + 1, d);
+		cld.solarFestival = getSolarFestivalNames(m + 1, d, y);
 
 		if (d === term1) cld.solarTerms = solarTerm[m * 2]!;
 		if (d === term2) cld.solarTerms = solarTerm[m * 2 + 1]!;
@@ -106,11 +106,11 @@ export function calendar(y: number, m: number, d: number): CalElement {
 		cld.cDay = cyclical(dayCyl);
 
 		if (!cld.isLeap) {
-			cld.lunarFestival = getLunarFestivalNames(cld.lMonth, cld.lDay);
+			cld.lunarFestival = getLunarFestivalNames(cld.lMonth, cld.lDay, y);
 		}
 
 		if (cld.lMonth === 12 && cld.lDay === lunarMonthDays(cld.lYear, 12)) {
-			const chuxi = getChuxiLabel();
+			const chuxi = getChuxiLabel(y);
 			if (chuxi) {
 				cld.lunarFestival = cld.lunarFestival
 					? `${cld.lunarFestival} ${chuxi}`
