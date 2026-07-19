@@ -17,6 +17,7 @@ export {
 	lunarToSolar,
 	monthDays,
 	sTerm,
+	sTermDate,
 	solarDays,
 } from './lunar-calc';
 export type { LunarMonthRef } from './lunar-calc';

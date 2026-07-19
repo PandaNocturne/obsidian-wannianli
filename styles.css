@@ -123,13 +123,13 @@
 }
 .wnl-toolbar__mode-btn {
   appearance: none;
-  min-width: 52px;
-  padding: 6px 12px;
+  min-width: 44px;
+  padding: 6px 10px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
@@ -576,6 +576,233 @@ th.wnl-weekend-sat {
 }
 th.wnl-weekend-sun {
   color: #d63031;
+}
+.wnl-board--terms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, auto);
+  gap: var(--wnl-board-gap, 12px);
+  align-items: stretch;
+}
+.wnl-season {
+  min-width: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-top: 3px solid var(--wnl-month-color, #000080);
+  border-radius: 6px;
+  background: var(--wnl-month-soft, var(--background-secondary));
+  overflow: clip;
+}
+.wnl-season__title {
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-indent: 0.35em;
+  color: #fff;
+  background: var(--wnl-month-color, #000080);
+}
+.wnl-season__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, auto);
+  gap: 8px;
+  padding: 10px;
+}
+.wnl-term-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  padding: 10px 10px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.wnl-term-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wnl-term-card__name {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--wnl-month-color, var(--text-normal));
+  letter-spacing: 0.1em;
+}
+.wnl-term-card__delta {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-variant-numeric: tabular-nums;
+}
+.wnl-term-card__delta.is-now {
+  color: var(--wnl-month-color, var(--interactive-accent));
+  background: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 14%, var(--background-primary));
+  border-color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 30%, transparent);
+}
+.wnl-term-card__delta.is-future {
+  color: var(--text-muted);
+  background: var(--background-secondary);
+}
+.wnl-term-card__delta.is-past {
+  color: var(--text-faint);
+  background: transparent;
+  border-color: var(--background-modifier-border);
+}
+.wnl-term-card__date {
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+  letter-spacing: 0.01em;
+}
+.wnl-term-card__range {
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+.wnl-term-card__lunar {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.wnl-term-card__ganzhi {
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 75%, var(--text-muted));
+}
+.wnl-term-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+.wnl-term-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+}
+.wnl-term-card__tag.is-huang {
+  color: #b45309;
+  background: color-mix(in srgb, #d97706 12%, var(--background-primary));
+  border-color: color-mix(in srgb, #d97706 28%, transparent);
+}
+.wnl-term-card__tag.is-hei {
+  color: #475569;
+  background: color-mix(in srgb, #64748b 10%, var(--background-primary));
+  border-color: color-mix(in srgb, #64748b 24%, transparent);
+}
+.wnl-term-card.is-today {
+  border-color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 45%, transparent);
+}
+.wnl-term-card.is-current {
+  border-color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 60%, transparent);
+  background: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 12%, var(--background-primary));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 28%, transparent);
+}
+.wnl-term-card.is-current .wnl-term-card__name {
+  color: var(--wnl-month-color, var(--interactive-accent));
+}
+.wnl-term-card.is-clickable {
+  cursor: pointer;
+}
+.wnl-term-card.is-clickable:hover {
+  border-color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 45%, transparent);
+  transform: translateY(-1px);
+}
+.wnl-board--zodiac {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wnl-zodiac-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+.wnl-zodiac-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(2, auto);
+  gap: var(--wnl-board-gap, 12px);
+  align-items: stretch;
+}
+.wnl-zodiac-card {
+  min-width: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-top: 3px solid var(--wnl-month-color, #000080);
+  border-radius: 6px;
+  background: var(--wnl-month-soft, var(--background-secondary));
+  overflow: clip;
+}
+.wnl-zodiac-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  background: var(--wnl-month-color, #000080);
+}
+.wnl-zodiac-card__animal {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.wnl-zodiac-card__meta {
+  font-size: 0.75rem;
+  opacity: 0.88;
+}
+.wnl-zodiac-card__years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  justify-content: center;
+}
+.wnl-zodiac-year {
+  appearance: none;
+  min-width: 3.4em;
+  padding: 4px 6px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.wnl-zodiac-year:hover {
+  border-color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 50%, transparent);
+  color: var(--wnl-month-color, var(--interactive-accent));
+}
+.wnl-zodiac-year.is-today {
+  background: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 16%, var(--background-primary));
+  border-color: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 55%, transparent);
+  color: var(--wnl-month-color, var(--interactive-accent));
+  font-weight: 750;
+}
+.wnl-zodiac-year.is-focus:not(.is-today) {
+  outline: 2px solid color-mix(in srgb, var(--interactive-accent) 45%, transparent);
+  outline-offset: 1px;
 }
 .wnl-tooltip {
   position: fixed;

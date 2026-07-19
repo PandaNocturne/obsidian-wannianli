@@ -124,6 +124,10 @@ export class WannianliView extends ItemView {
 				gridGap: s.gridGap,
 			},
 			onDayClick: (info) => this.openDayDetail(info),
+			onZodiacYearClick: (year) => {
+				this.state = { year, calendarMode: 'solar' };
+				this.refresh();
+			},
 		});
 	}
 

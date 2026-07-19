@@ -1,18 +1,22 @@
-import { buildLunarYearMonths, buildMonthData } from '../lunar';
+import { buildLunarYearMonths, buildMonthData, calendar } from '../lunar';
 import type { CalElement } from '../lunar';
 import type { DisplaySettings } from '../ui/view-settings-modal';
 import type { CalendarMode } from '../ui/toolbar';
 import { MONTH_WIDTH_DEFAULT } from '../data/settings';
 import { renderMonthGrid } from './month-grid';
+import { renderSolarTermsView } from './solar-terms-view';
+import { renderZodiacView } from './zodiac-view';
 
 export interface RenderCalendarOptions {
 	year: number;
 	calendarMode?: CalendarMode;
 	display?: DisplaySettings;
 	onDayClick?: (info: CalElement) => void;
+	/** 生肖年表点击年份：切到阳历该年 */
+	onZodiacYearClick?: (year: number) => void;
 }
 
-/** 渲染年视图：阳历按公历月，阴历按农历月（含闰月） */
+/** 渲染年视图：阳历 / 阴历 / 节气 / 生肖 */
 export function renderCalendarView(container: HTMLElement, options: RenderCalendarOptions): void {
 	container.empty();
 	const mode = options.calendarMode ?? 'solar';
@@ -25,6 +29,28 @@ export function renderCalendarView(container: HTMLElement, options: RenderCalend
 		monthWidth: MONTH_WIDTH_DEFAULT,
 		gridGap: 10,
 	};
+
+	if (mode === 'solarTerms') {
+		renderSolarTermsView(container, {
+			year: options.year,
+			colorfulTheme: display.colorfulTheme,
+			showMonthShadow: display.showMonthShadow,
+			onDayClick: options.onDayClick
+				? (y, m, d) => options.onDayClick!(calendar(y, m - 1, d))
+				: undefined,
+		});
+		return;
+	}
+
+	if (mode === 'zodiac') {
+		renderZodiacView(container, {
+			focusYear: options.year,
+			colorfulTheme: display.colorfulTheme,
+			showMonthShadow: display.showMonthShadow,
+			onYearClick: options.onZodiacYearClick,
+		});
+		return;
+	}
 
 	const board = container.createDiv({ cls: 'wnl-board wnl-board--year' });
 	board.style.setProperty('--wnl-board-gap', `${display.gridGap}px`);

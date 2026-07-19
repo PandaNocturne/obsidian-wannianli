@@ -1,7 +1,7 @@
 import { setIcon } from 'obsidian';
 import { YEAR_MAX, YEAR_MIN } from '../constants';
 
-export type CalendarMode = 'solar' | 'lunar';
+export type CalendarMode = 'solar' | 'lunar' | 'solarTerms' | 'zodiac';
 
 export interface ToolbarState {
 	year: number;
@@ -15,7 +15,14 @@ export interface ToolbarCallbacks {
 	onOpenSettings: () => void;
 }
 
-/** 顶部工具栏：历法切换、年份导航、事件管理 */
+const MODE_BUTTONS: { mode: CalendarMode; label: string }[] = [
+	{ mode: 'solar', label: '阳历' },
+	{ mode: 'lunar', label: '阴历' },
+	{ mode: 'solarTerms', label: '节气' },
+	{ mode: 'zodiac', label: '生肖' },
+];
+
+/** 顶部工具栏：历法/节气/生肖切换、年份导航、事件管理 */
 export function renderToolbar(
 	container: HTMLElement,
 	state: ToolbarState,
@@ -29,26 +36,26 @@ export function renderToolbar(
 		cls: 'wnl-toolbar__mode',
 		attr: { role: 'group', 'aria-label': '日历显示模式' },
 	});
-	const solarBtn = modeSwitch.createEl('button', {
-		cls: 'wnl-toolbar__mode-btn' + (state.calendarMode === 'solar' ? ' is-active' : ''),
-		text: '阳历',
-		attr: { type: 'button', 'aria-pressed': String(state.calendarMode === 'solar') },
-	});
-	const lunarBtn = modeSwitch.createEl('button', {
-		cls: 'wnl-toolbar__mode-btn' + (state.calendarMode === 'lunar' ? ' is-active' : ''),
-		text: '阴历',
-		attr: { type: 'button', 'aria-pressed': String(state.calendarMode === 'lunar') },
-	});
-	solarBtn.addEventListener('click', () => {
-		if (state.calendarMode === 'solar') return;
-		callbacks.onChange({ ...state, calendarMode: 'solar' });
-	});
-	lunarBtn.addEventListener('click', () => {
-		if (state.calendarMode === 'lunar') return;
-		callbacks.onChange({ ...state, calendarMode: 'lunar' });
-	});
+
+	for (const { mode, label } of MODE_BUTTONS) {
+		const btn = modeSwitch.createEl('button', {
+			cls:
+				'wnl-toolbar__mode-btn' +
+				(state.calendarMode === mode ? ' is-active' : ''),
+			text: label,
+			attr: {
+				type: 'button',
+				'aria-pressed': String(state.calendarMode === mode),
+			},
+		});
+		btn.addEventListener('click', () => {
+			if (state.calendarMode === mode) return;
+			callbacks.onChange({ ...state, calendarMode: mode });
+		});
+	}
 
 	const center = bar.createDiv({ cls: 'wnl-toolbar__center' });
+	// 生肖总表不依赖年份导航，仍保留以便高亮/跳转
 	const yearWrap = center.createDiv({ cls: 'wnl-toolbar__year' });
 
 	const prevYear = yearWrap.createEl('button', {

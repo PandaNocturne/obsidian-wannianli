@@ -62,12 +62,16 @@ export function hourCyclical(dayGanIndex: number, shiChen: number): string {
 	return Gan[(start + z) % 10]! + Zhi[z]!;
 }
 
-/** 第 n 个节气在公历该月的日期（UTC） */
-export function sTerm(y: number, n: number): number {
-	const offDate = new Date(
+/** 第 n 个节气的精确时刻（算法基准为 UTC，与日序一致） */
+export function sTermDate(y: number, n: number): Date {
+	return new Date(
 		31556925974.7 * (y - 1900) + sTermInfo[n]! * 60000 + Date.UTC(1900, 0, 6, 2, 5),
 	);
-	return offDate.getUTCDate();
+}
+
+/** 第 n 个节气在公历该月的日期（UTC） */
+export function sTerm(y: number, n: number): number {
+	return sTermDate(y, n).getUTCDate();
 }
 
 /** 由公历 Date 推算农历（含干支用 monCyl / dayCyl） */
