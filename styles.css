@@ -730,6 +730,43 @@ th.wnl-weekend-sun {
   flex-direction: column;
   gap: 10px;
 }
+.wnl-zodiac-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+}
+.wnl-zodiac-layout {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+}
+.wnl-zodiac-layout__btn {
+  appearance: none;
+  min-width: 52px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.wnl-zodiac-layout__btn:hover:not(.is-active) {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+.wnl-zodiac-layout__btn.is-active {
+  color: var(--text-on-accent);
+  background: var(--interactive-accent);
+}
 .wnl-zodiac-filters {
   display: flex;
   flex-wrap: wrap;
@@ -747,6 +784,7 @@ th.wnl-weekend-sun {
   color: var(--text-muted);
   font-size: 0.82rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
@@ -759,11 +797,10 @@ th.wnl-weekend-sun {
   background: var(--interactive-accent);
   border-color: var(--interactive-accent);
 }
-.wnl-zodiac-hint {
-  text-align: center;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
+.wnl-zodiac-filter.is-current-animal:not(.is-active) {
+  border-color: color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+  color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 10%, var(--background-primary));
 }
 .wnl-zodiac-table-wrap {
   overflow: auto;
@@ -825,6 +862,107 @@ th.wnl-weekend-sun {
 .wnl-zodiac-table__row.is-today .wnl-zodiac-table__year,
 .wnl-zodiac-table__row.is-today .wnl-zodiac-table__label {
   color: var(--interactive-accent);
+}
+.wnl-zodiac-dayun__cell {
+  padding: 8px 12px !important;
+  text-align: center !important;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-top: 1px solid var(--background-modifier-border);
+}
+.wnl-zodiac-dayun--card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 4px;
+  margin: 4px 0 2px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.wnl-zodiac-dayun--card::before,
+.wnl-zodiac-dayun--card::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--background-modifier-border);
+}
+.wnl-zodiac-card-wrap {
+  overflow: auto;
+  max-height: min(70vh, 820px);
+  padding: 2px;
+}
+.wnl-zodiac-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+.wnl-zodiac-year-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+.wnl-zodiac-year-card__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+.wnl-zodiac-year-card__year {
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+.wnl-zodiac-year-card__label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-normal);
+}
+.wnl-zodiac-year-card__cny {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.wnl-zodiac-year-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+.wnl-zodiac-year-card.is-clickable {
+  cursor: pointer;
+}
+.wnl-zodiac-year-card.is-clickable:hover {
+  border-color: color-mix(in srgb, var(--interactive-accent) 45%, transparent);
+  transform: translateY(-1px);
+}
+.wnl-zodiac-year-card.is-today {
+  border-color: color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 10%, var(--background-primary));
+}
+.wnl-zodiac-year-card.is-today .wnl-zodiac-year-card__year,
+.wnl-zodiac-year-card.is-today .wnl-zodiac-year-card__label {
+  color: var(--interactive-accent);
+}
+.wnl-zodiac-year-card.is-focus:not(.is-today) {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 28%, transparent);
 }
 .wnl-zodiac-pill {
   display: inline-flex;

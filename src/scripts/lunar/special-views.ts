@@ -1,5 +1,5 @@
 import { YEAR_MAX, YEAR_MIN } from '../constants';
-import { Animals, solarTerm } from '../data/terms';
+import { Animals, Zhi, solarTerm } from '../data/terms';
 import { calendar } from './calendar';
 import { calcAlmanac } from './day-detail';
 import { cDay, lunarMonthToChinese } from './format';
@@ -141,6 +141,25 @@ export function zodiacOfYear(year: number): string {
 	return Animals[((year - 4) % 12 + 12) % 12]!;
 }
 
+/** 公历年地支索引 0=子 … 11=亥 */
+export function zhiIndexOfYear(year: number): number {
+	return ((year - 4) % 12 + 12) % 12;
+}
+
+/** 地支+生肖，如 子鼠、丑牛 */
+export function zhiAnimalLabel(zhiIndex: number): string {
+	const idx = ((zhiIndex % 12) + 12) % 12;
+	return `${Zhi[idx]!}${Animals[idx]!}`;
+}
+
+/** 十二生肖筛选标签：子鼠…亥猪 */
+export const ZODIAC_TABS = Animals.map((animal, zhiIndex) => ({
+	zhiIndex,
+	animal,
+	zhi: Zhi[zhiIndex]!,
+	label: `${Zhi[zhiIndex]!}${animal}`,
+}));
+
 /** 公历年干支 */
 export function ganzhiOfYear(year: number): string {
 	return cyclical(year - 4);
@@ -156,8 +175,14 @@ export interface ZodiacYearRow {
 	year: number;
 	/** 如 丙午 */
 	ganzhi: string;
+	/** 地支索引 0=子 */
+	zhiIndex: number;
+	/** 如 午 */
+	zhi: string;
 	/** 如 马 */
 	animal: string;
+	/** 如 午马 */
+	zhiAnimal: string;
 	/** 如 丙午马年 */
 	label: string;
 	/** 农历新年公历日期 */
@@ -182,13 +207,18 @@ export function listZodiacYearRows(
 
 	for (let y = start; y <= end; y++) {
 		const ganzhi = ganzhiOfYear(y);
-		const animal = zodiacOfYear(y);
+		const zhiIndex = zhiIndexOfYear(y);
+		const zhi = Zhi[zhiIndex]!;
+		const animal = Animals[zhiIndex]!;
 		const stem = stemIndexOfYear(y);
 		const lunarNewYear = lunarToSolar(y, 1, 1, false);
 		rows.push({
 			year: y,
 			ganzhi,
+			zhiIndex,
+			zhi,
 			animal,
+			zhiAnimal: `${zhi}${animal}`,
 			label: `${ganzhi}${animal}年`,
 			lunarNewYear,
 			lunarNewYearText: `${lunarNewYear.getFullYear()}年${lunarNewYear.getMonth() + 1}月${lunarNewYear.getDate()}日`,
@@ -202,6 +232,8 @@ export function listZodiacYearRows(
 export interface ZodiacGroup {
 	animal: string;
 	zhiIndex: number;
+	/** 如 子鼠 */
+	label: string;
 	years: number[];
 }
 
@@ -212,15 +244,64 @@ export function listZodiacGroups(
 ): ZodiacGroup[] {
 	const start = Math.max(YEAR_MIN, fromYear);
 	const end = Math.min(YEAR_MAX, toYear);
-	const groups: ZodiacGroup[] = Animals.map((animal, zhiIndex) => ({
-		animal,
-		zhiIndex,
+	const groups: ZodiacGroup[] = ZODIAC_TABS.map((tab) => ({
+		animal: tab.animal,
+		zhiIndex: tab.zhiIndex,
+		label: tab.label,
 		years: [] as number[],
 	}));
 
 	for (let y = start; y <= end; y++) {
-		const idx = ((y - 4) % 12 + 12) % 12;
+		const idx = zhiIndexOfYear(y);
 		groups[idx]!.years.push(y);
 	}
 	return groups;
+}
+
+/**
+ * 玄空飞星三元九运：自 1864 甲子起，每运 20 年，九运一循环。
+ * 如 2024–2043 为下元九紫离火运。
+ */
+const DAYUN_EPOCH = 1864;
+const DAYUN_YUAN = ['上元', '中元', '下元'] as const;
+const DAYUN_NAMES = [
+	'一白水运',
+	'二黑土运',
+	'三碧木运',
+	'四绿木运',
+	'五黄土运',
+	'六白金运',
+	'七赤金运',
+	'八白土运',
+	'九紫离火运',
+] as const;
+
+export interface DayunInfo {
+	/** 1–9 */
+	yun: number;
+	/** 如 九紫离火运 */
+	name: string;
+	/** 上元 / 中元 / 下元 */
+	yuan: string;
+	startYear: number;
+	endYear: number;
+	/** 如 下元 · 九紫离火运 · 2024–2043 */
+	label: string;
+}
+
+/** 公历年所属大运（按整年粗分，交运以立春为界时年末年初可能差一年） */
+export function dayunOfYear(year: number): DayunInfo {
+	const raw = Math.floor((year - DAYUN_EPOCH) / 20);
+	const yunIndex = ((raw % 9) + 9) % 9;
+	const startYear = DAYUN_EPOCH + raw * 20;
+	const name = DAYUN_NAMES[yunIndex]!;
+	const yuan = DAYUN_YUAN[Math.floor(yunIndex / 3)]!;
+	return {
+		yun: yunIndex + 1,
+		name,
+		yuan,
+		startYear,
+		endYear: startYear + 19,
+		label: `${yuan} · ${name} · ${startYear}–${startYear + 19}`,
+	};
 }
