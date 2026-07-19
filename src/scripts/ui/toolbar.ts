@@ -15,11 +15,11 @@ export interface ToolbarCallbacks {
 	onOpenSettings: () => void;
 }
 
-const MODE_BUTTONS: { mode: CalendarMode; label: string }[] = [
-	{ mode: 'solar', label: '阳历' },
-	{ mode: 'lunar', label: '阴历' },
-	{ mode: 'solarTerms', label: '节气' },
-	{ mode: 'zodiac', label: '生肖' },
+const MODE_BUTTONS: { mode: CalendarMode; label: string; icon: string }[] = [
+	{ mode: 'solar', label: '阳历', icon: 'sun' },
+	{ mode: 'lunar', label: '阴历', icon: 'moon' },
+	{ mode: 'solarTerms', label: '节气', icon: 'cloud-sun' },
+	{ mode: 'zodiac', label: '生肖', icon: 'paw-print' },
 ];
 
 /** 顶部工具栏：历法/节气/生肖切换、年份导航、事件管理 */
@@ -37,17 +37,20 @@ export function renderToolbar(
 		attr: { role: 'group', 'aria-label': '日历显示模式' },
 	});
 
-	for (const { mode, label } of MODE_BUTTONS) {
+	for (const { mode, label, icon } of MODE_BUTTONS) {
 		const btn = modeSwitch.createEl('button', {
 			cls:
 				'wnl-toolbar__mode-btn' +
 				(state.calendarMode === mode ? ' is-active' : ''),
-			text: label,
 			attr: {
 				type: 'button',
+				title: label,
+				'aria-label': label,
 				'aria-pressed': String(state.calendarMode === mode),
 			},
 		});
+		setIcon(btn, icon);
+		btn.createSpan({ text: label });
 		btn.addEventListener('click', () => {
 			if (state.calendarMode === mode) return;
 			callbacks.onChange({ ...state, calendarMode: mode });

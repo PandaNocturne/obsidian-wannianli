@@ -173,6 +173,7 @@ function renderCardLayout(
 				(isToday ? ' is-today' : '') +
 				(isFocus ? ' is-focus' : '') +
 				(opts.onYearClick ? ' is-clickable' : ''),
+			attr: { 'data-animal': row.animal },
 		});
 
 		const head = card.createDiv({ cls: 'wnl-zodiac-year-card__head' });
