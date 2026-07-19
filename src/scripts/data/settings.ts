@@ -1,7 +1,7 @@
 /** 自定义事件类型：阳历（公历）或阴历（农历） */
 export type EventKind = 'solar' | 'lunar';
 
-/** 内置「默认」标签页：展示系统节假日，不可删除 */
+/** 内置节假日标签页：展示系统节假日，不可删除 */
 export const BUILTIN_CATEGORY_ID = 'builtin';
 
 /** 默认「生日」标签页 */
@@ -50,7 +50,7 @@ export interface WannianliSettings {
 }
 
 export const DEFAULT_EVENT_CATEGORIES: EventCategory[] = [
-	{ id: BUILTIN_CATEGORY_ID, name: '默认', locked: true },
+	{ id: BUILTIN_CATEGORY_ID, name: '内置', locked: true },
 	{ id: BIRTHDAY_CATEGORY_ID, name: '生日' },
 ];
 
@@ -148,7 +148,7 @@ export function normalizeEventCategories(raw: unknown): EventCategory[] {
 			if (seen.has(c.id)) continue;
 			const name = c.name.trim();
 			if (c.id === BUILTIN_CATEGORY_ID) {
-				list.push({ id: BUILTIN_CATEGORY_ID, name: name || '默认', locked: true });
+				list.push({ id: BUILTIN_CATEGORY_ID, name: '内置', locked: true });
 				seen.add(c.id);
 				continue;
 			}
@@ -159,7 +159,7 @@ export function normalizeEventCategories(raw: unknown): EventCategory[] {
 	}
 
 	if (!seen.has(BUILTIN_CATEGORY_ID)) {
-		list.unshift({ id: BUILTIN_CATEGORY_ID, name: '默认', locked: true });
+		list.unshift({ id: BUILTIN_CATEGORY_ID, name: '内置', locked: true });
 	}
 	if (!seen.has(BIRTHDAY_CATEGORY_ID)) {
 		list.push({ id: BIRTHDAY_CATEGORY_ID, name: '生日' });

@@ -502,8 +502,8 @@ th.wnl-weekend-sun {
 }
 /* 事件弹窗：固定高度，顶部工具栏吸顶，内容区滚动 */
 .wnl-event-modal-host {
-  width: min(520px, 94vw) !important;
-  max-width: min(520px, 94vw) !important;
+  width: min(680px, 94vw) !important;
+  max-width: min(680px, 94vw) !important;
 }
 .wnl-event-modal-host .modal-content {
   height: min(72vh, 620px);
@@ -533,13 +533,15 @@ th.wnl-weekend-sun {
 }
 .wnl-event-modal__tabs-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
   gap: 6px;
   margin-bottom: 10px;
+  min-width: 0;
 }
 .wnl-event-modal__tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex: 1 1 auto;
   gap: 4px;
   padding: 3px;
@@ -547,11 +549,14 @@ th.wnl-weekend-sun {
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
   min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 .wnl-event-modal__tab {
   appearance: none;
-  flex: 1 1 auto;
-  min-width: max(4.5em, 22%);
+  flex: 0 0 auto;
+  white-space: nowrap;
   padding: 7px 10px;
   border: none;
   border-radius: 8px;
@@ -1429,10 +1434,8 @@ th.wnl-weekend-sun {
   width: min(420px, 94vw) !important;
   max-width: min(420px, 94vw) !important;
 }
-.wnl-settings .setting-item {
-  border-top: none;
-  padding: 12px 0;
-}
-.wnl-settings .setting-item + .setting-item {
-  border-top: 1px solid var(--background-modifier-border);
+.wnl-confirm-modal__message {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  line-height: 1.5;
 }

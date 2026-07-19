@@ -26,6 +26,7 @@ import {
 	renderMonthDayPicker,
 } from './event-date';
 import { NamePromptModal } from './name-prompt-modal';
+import { ConfirmModal } from './confirm-modal';
 
 export interface EventsManageModalResult {
 	changed: boolean;
@@ -106,7 +107,12 @@ export class EventsManageModal extends Modal {
 			onAddCategory: () => this.openCreateCategory(),
 			onRename: (cat) => this.openRenameCategory(cat),
 			onDelete: (cat) => {
-				void this.deleteCategory(cat.id);
+				new ConfirmModal(
+					this.app,
+					'删除标签',
+					`确定删除标签「${cat.name}」？该标签下的事件将迁移到其他标签。`,
+					() => this.deleteCategory(cat.id),
+				).open();
 			},
 			onReorder: (orderedIds) => {
 				void this.reorderCategories(orderedIds);
@@ -401,7 +407,12 @@ export class EventsManageModal extends Modal {
 		} else {
 			const delBtn = createRowIconBtn(actions, 'trash-2', '删除', 'is-danger');
 			delBtn.addEventListener('click', () => {
-				void this.deleteEvent(event.id);
+				new ConfirmModal(
+					this.app,
+					'删除事件',
+					`确定删除事件「${event.name}」？此操作不可撤销。`,
+					() => this.deleteEvent(event.id),
+				).open();
 			});
 		}
 	}
