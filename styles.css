@@ -283,12 +283,13 @@
   justify-self: stretch;
   background: var(--wnl-month-soft, var(--background-secondary));
   border: 1px solid var(--background-modifier-border);
-  border-top: 3px solid var(--wnl-month-color, #000080);
+  border-top: 3px solid var(--wnl-month-color, var(--interactive-accent));
   border-radius: 6px;
   overflow: clip;
   box-shadow: none;
-  /* 周末底：比 soft 稍深，随当月主题色变化 */
-  --wnl-weekend-bg: color-mix(in srgb, var(--wnl-month-color, #000080) 28%, var(--background-primary));
+  /* 周末底：比 soft 稍深；彩色主题下随当月色，plain 下用 ob 默认变量 */
+  --wnl-weekend-bg: color-mix(in srgb, var(--wnl-month-color, var(--interactive-accent)) 28%, var(--background-primary));
+  /* 关闭彩色主题：跟随 Obsidian 当前主题配色 */
 }
 .wnl-month--shadow {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 6px 18px rgba(0, 0, 0, 0.08);
@@ -305,7 +306,7 @@
   font-weight: 800;
   letter-spacing: 0.06em;
   line-height: 1;
-  color: var(--wnl-month-color, #000080);
+  color: var(--wnl-month-color, var(--interactive-accent));
   opacity: 0.16;
   pointer-events: none;
   user-select: none;
@@ -321,8 +322,8 @@
   z-index: 1;
 }
 .wnl-month__header {
-  background: var(--wnl-month-color, #000080);
-  color: #fff;
+  background: var(--wnl-month-color, var(--interactive-accent));
+  color: var(--text-on-accent);
   padding: 10px 12px;
   text-align: center;
 }
@@ -432,7 +433,8 @@
 }
 .wnl-month--plain {
   --wnl-month-color: var(--interactive-accent);
-  --wnl-month-soft: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+  --wnl-month-soft: var(--background-secondary);
+  --wnl-weekend-bg: var(--background-modifier-hover);
 }
 .wnl-grid {
   width: 100%;
@@ -594,7 +596,7 @@ th.wnl-weekend-sun {
 .wnl-season {
   min-width: 0;
   border: 1px solid var(--background-modifier-border);
-  border-top: 3px solid var(--wnl-month-color, #000080);
+  border-top: 3px solid var(--wnl-month-color, var(--interactive-accent));
   border-radius: 6px;
   background: var(--wnl-month-soft, var(--background-secondary));
   overflow: clip;
@@ -606,8 +608,8 @@ th.wnl-weekend-sun {
   font-weight: 700;
   letter-spacing: 0.35em;
   text-indent: 0.35em;
-  color: #fff;
-  background: var(--wnl-month-color, #000080);
+  color: var(--text-on-accent);
+  background: var(--wnl-month-color, var(--interactive-accent));
 }
 .wnl-season__grid {
   display: grid;

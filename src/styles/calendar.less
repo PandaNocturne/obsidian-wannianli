@@ -26,13 +26,13 @@
 	justify-self: stretch;
 	background: var(--wnl-month-soft, var(--background-secondary));
 	border: 1px solid var(--background-modifier-border);
-	border-top: 3px solid var(--wnl-month-color, #000080);
+	border-top: 3px solid var(--wnl-month-color, @wnl-accent);
 	border-radius: @wnl-radius;
 	overflow: clip;
 	box-shadow: none;
-	/* 周末底：比 soft 稍深，随当月主题色变化 */
+	/* 周末底：比 soft 稍深；彩色主题下随当月色，plain 下用 ob 默认变量 */
 	--wnl-weekend-bg: color-mix(in srgb,
-			var(--wnl-month-color, #000080) 28%,
+			var(--wnl-month-color, @wnl-accent) 28%,
 			var(--background-primary));
 
 	&--shadow {
@@ -53,7 +53,7 @@
 		font-weight: 800;
 		letter-spacing: 0.06em;
 		line-height: 1;
-		color: var(--wnl-month-color, #000080);
+		color: var(--wnl-month-color, @wnl-accent);
 		opacity: 0.16;
 		pointer-events: none;
 		user-select: none;
@@ -72,8 +72,8 @@
 	}
 
 	&__header {
-		background: var(--wnl-month-color, #000080);
-		color: #fff;
+		background: var(--wnl-month-color, @wnl-accent);
+		color: var(--text-on-accent);
 		padding: 10px 12px;
 		text-align: center;
 	}
@@ -214,9 +214,11 @@
 		--wnl-month-soft: @wnl-m12-soft;
 	}
 
+	/* 关闭彩色主题：跟随 Obsidian 当前主题配色 */
 	&--plain {
 		--wnl-month-color: @wnl-accent;
-		--wnl-month-soft: color-mix(in srgb, @wnl-accent 12%, var(--background-primary));
+		--wnl-month-soft: var(--background-secondary);
+		--wnl-weekend-bg: var(--background-modifier-hover);
 	}
 }
 
